@@ -73,8 +73,8 @@ export default function Footer() {
           <p className="text-white/25 text-xs">
             © 2026 Clínica Veterinaria Peón Pet&apos;s · La Falda, Córdoba, Argentina
           </p>
-          <Link href="/admin" className="text-white/20 text-xs hover:text-white/40 transition-colors">
-            Panel Admin
+          <Link href="/admin/login" className="text-white/20 text-xs hover:text-white/40 transition-colors">
+            Admin
           </Link>
         </div>
       </div>

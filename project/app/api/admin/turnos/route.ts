@@ -2,9 +2,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase-server";
 import { Especialidad, EstadoTurno } from "@/types";
+import { verificarSesionToken } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
   try {
+    const token = request.cookies.get("admin_session")?.value;
+    const autenticado = token ? await verificarSesionToken(token) : false;
+    if (!autenticado) {
+      return NextResponse.json({ error: "No autorizado." }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const especialidad = searchParams.get("especialidad") as Especialidad | null;
     const estado = searchParams.get("estado") as EstadoTurno | "todos" | null;

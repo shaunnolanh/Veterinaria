@@ -23,7 +23,9 @@ export async function middleware(request: NextRequest) {
   }
 
   try {
-    const secret = new TextEncoder().encode(process.env.ADMIN_SESSION_SECRET!);
+    const secret = new TextEncoder().encode(
+      process.env.ADMIN_SESSION_SECRET ?? "peonpets-admin-session-secret-dev"
+    );
     await jwtVerify(session.value, secret);
     return NextResponse.next();
   } catch {

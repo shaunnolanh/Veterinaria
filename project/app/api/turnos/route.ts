@@ -7,14 +7,19 @@ import { esDiaLaboral, generarSlotsDelDia } from "@/lib/horarios";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { nombre, apellido, telefono, mascota, especie, motivo, fecha, hora, especialidad } = body;
+    const { nombre, apellido, telefono, email, mascota, especie, motivo, fecha, hora, especialidad } = body;
 
     // Validaciones del lado del servidor
-    if (!nombre || !apellido || !telefono || !mascota || !especie || !fecha || !hora) {
+    if (!nombre || !apellido || !telefono || !email || !mascota || !especie || !fecha || !hora) {
       return NextResponse.json(
         { error: "Faltan datos obligatorios." },
         { status: 400 }
       );
+    }
+
+    const emailNormalizado = String(email).trim().toLowerCase();
+    if (!emailNormalizado.includes("@")) {
+      return NextResponse.json({ error: "Email inválido." }, { status: 400 });
     }
 
     const especialidadFinal = especialidad || "clinica";
@@ -81,6 +86,7 @@ export async function POST(request: NextRequest) {
         nombre: nombre.trim(),
         apellido: apellido.trim(),
         telefono: telefono.trim(),
+        email: emailNormalizado,
         mascota: mascota.trim(),
         especie,
         motivo: motivo?.trim() || null,

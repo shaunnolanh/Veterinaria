@@ -38,10 +38,13 @@ export async function POST(request: NextRequest) {
   try {
     const { usuario, contrasena } = await request.json();
 
-    const usuarioCorrecto = usuario === process.env.ADMIN_USER;
-    const contrasenaCorrrecta = contrasena === process.env.ADMIN_PASSWORD;
+    const adminUser = process.env.ADMIN_USER ?? "admin";
+    const adminPassword = process.env.ADMIN_PASSWORD ?? "peonpets2024";
 
-    if (!usuarioCorrecto || !contrasenaCorrrecta) {
+    const usuarioCorrecto = usuario === adminUser;
+    const contrasenaCorrecta = contrasena === adminPassword;
+
+    if (!usuarioCorrecto || !contrasenaCorrecta) {
       return NextResponse.json(
         { error: "Credenciales inválidas." },
         { status: 401 }

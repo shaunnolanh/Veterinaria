@@ -13,6 +13,7 @@ export interface Turno {
   nombre: string;
   apellido: string;
   telefono: string;
+  email: string;
   mascota: string;
   especie: EspecieMascota;
   motivo: string;
@@ -41,6 +42,7 @@ export interface FormularioTurnoData {
   nombre: string;
   apellido: string;
   telefono: string;
+  email: string;
   mascota: string;
   especie: EspecieMascota;
   motivo: string;
