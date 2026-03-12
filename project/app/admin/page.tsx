@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { createAdminClient } from "@/lib/supabase-server";
 import AdminShell from "@/components/admin/AdminShell";
 import Link from "next/link";

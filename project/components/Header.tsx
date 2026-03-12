@@ -12,6 +12,7 @@ export default function Header() {
     { href: "/#horarios", label: "Horarios" },
     { href: "/#ubicacion", label: "Ubicación" },
     { href: "/#contacto", label: "Contacto" },
+    { href: "/tienda", label: "Tienda" },
   ];
 
   return (

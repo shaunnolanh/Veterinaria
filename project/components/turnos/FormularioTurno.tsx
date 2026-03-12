@@ -24,6 +24,7 @@ export default function FormularioTurno({ fecha, hora, especialidad, onExito, on
     nombre: "",
     apellido: "",
     telefono: "",
+    email: "",
     mascota: "",
     especie: "perro",
     motivo: "",
@@ -48,6 +49,11 @@ export default function FormularioTurno({ fecha, hora, especialidad, onExito, on
     }
     if (!form.telefono.trim()) {
       setError("El teléfono es necesario para confirmarte el turno.");
+      setEnviando(false);
+      return;
+    }
+    if (!form.email.trim()) {
+      setError("El email es necesario para enviarte confirmaciones.");
       setEnviando(false);
       return;
     }
@@ -123,6 +129,25 @@ export default function FormularioTurno({ fecha, hora, especialidad, onExito, on
         />
         <p className="text-white/40 text-xs mt-1">
           Lo usamos solo para confirmar tu turno.
+        </p>
+      </div>
+
+
+
+      {/* Email */}
+      <div>
+        <label className="label-campo">Email *</label>
+        <input
+          type="email"
+          className="input-campo"
+          placeholder="Ej: nombre@gmail.com"
+          value={form.email}
+          onChange={(e) => actualizar("email", e.target.value)}
+          required
+          autoComplete="email"
+        />
+        <p className="text-white/40 text-xs mt-1">
+          Te enviamos confirmaciones y recordatorios del turno.
         </p>
       </div>
 

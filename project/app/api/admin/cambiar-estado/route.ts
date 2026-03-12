@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase-server";
 import { EstadoTurno } from "@/types";
+import { verificarSesionToken } from "@/lib/auth";
 
 async function enviarWhatsApp(telefono: string, mensaje: string): Promise<boolean> {
   const accountSid = process.env.TWILIO_ACCOUNT_SID;
@@ -75,6 +76,12 @@ Por favor comunicate con nosotros para reprogramarlo:
 
 export async function POST(request: NextRequest) {
   try {
+    const token = request.cookies.get("admin_session")?.value;
+    const autenticado = token ? await verificarSesionToken(token) : false;
+    if (!autenticado) {
+      return NextResponse.json({ error: "No autorizado." }, { status: 401 });
+    }
+
     const { turnoId, estado, notasAdmin } = await request.json() as {
       turnoId: string;
       estado: EstadoTurno;

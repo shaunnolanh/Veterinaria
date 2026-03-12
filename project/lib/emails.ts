@@ -1,8 +1,42 @@
-// Emails transaccionales con Resend — Clínica Veterinaria Peón Pet's
-import { Resend } from "resend";
+import { createRequire } from "node:module";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-const FROM = process.env.RESEND_FROM ?? "onboarding@resend.dev";
+const require = createRequire(import.meta.url);
+
+type MailOptions = {
+  from: string;
+  to: string;
+  subject: string;
+  text: string;
+};
+
+type MailTransporter = {
+  sendMail: (options: MailOptions) => Promise<unknown>;
+};
+
+function getTransporter(): MailTransporter {
+  const nodemailerModule = require("nodemailer") as {
+    createTransport: (config: {
+      service: string;
+      auth: { user: string; pass: string };
+    }) => MailTransporter;
+  };
+
+  const user = process.env.GMAIL_USER;
+  const pass = process.env.GMAIL_APP_PASSWORD;
+
+  if (!user || !pass) {
+    throw new Error("GMAIL_USER o GMAIL_APP_PASSWORD no están configurados.");
+  }
+
+  return nodemailerModule.createTransport({
+    service: "gmail",
+    auth: { user, pass },
+  });
+}
+
+function getFromAddress() {
+  return process.env.EMAIL_FROM ?? process.env.GMAIL_USER ?? "";
+}
 
 function fmtFecha(fecha: string) {
   const [y, m, d] = fecha.split("-");
@@ -10,15 +44,15 @@ function fmtFecha(fecha: string) {
 }
 
 async function enviar(to: string, subject: string, text: string) {
-  if (!process.env.RESEND_API_KEY) {
-    console.warn("[email] RESEND_API_KEY no configurado, omitiendo.");
-    return;
+  if (!to) return;
+  const from = getFromAddress();
+  if (!from) {
+    throw new Error("EMAIL_FROM no está configurado.");
   }
-  const { error } = await resend.emails.send({ from: FROM, to, subject, text });
-  if (error) console.error("[Resend] Error:", error);
-}
 
-// ─── Turnos ──────────────────────────────────────────────────────────────────
+  const transporter = getTransporter();
+  await transporter.sendMail({ from, to, subject, text });
+}
 
 export async function emailTurnoRecibido(t: {
   email?: string | null;
@@ -29,7 +63,7 @@ export async function emailTurnoRecibido(t: {
   especie: string;
   motivo?: string | null;
 }) {
-  if (!t.email) { console.warn("[email] Turno sin email, omitiendo."); return; }
+  if (!t.email) return;
   await enviar(
     t.email,
     "Tu turno en Peón Pet's fue recibido",
@@ -44,7 +78,7 @@ export async function emailTurnoConfirmado(t: {
   hora: string;
   mascota: string;
 }) {
-  if (!t.email) { console.warn("[email] Turno sin email, omitiendo."); return; }
+  if (!t.email) return;
   await enviar(
     t.email,
     "✅ Tu turno está confirmado — Peón Pet's",
@@ -57,7 +91,7 @@ export async function emailTurnoCancelado(t: {
   nombre: string;
   mascota: string;
 }) {
-  if (!t.email) { console.warn("[email] Turno sin email, omitiendo."); return; }
+  if (!t.email) return;
   await enviar(
     t.email,
     "Tu turno fue cancelado — Peón Pet's",
@@ -72,7 +106,7 @@ export async function emailRecordatorio(t: {
   mascota: string;
   motivo?: string | null;
 }) {
-  if (!t.email) { console.warn("[email] Turno sin email, omitiendo."); return; }
+  if (!t.email) return;
   await enviar(
     t.email,
     "🔔 Recordatorio — Hoy tenés turno en Peón Pet's",
@@ -80,15 +114,13 @@ export async function emailRecordatorio(t: {
   );
 }
 
-// ─── Pedidos ─────────────────────────────────────────────────────────────────
-
 export async function emailPedidoRecibido(p: {
   email?: string | null;
   nombre: string;
   items: { nombre: string; cantidad: number; precio_unitario: number }[];
   total: number;
 }) {
-  if (!p.email) { console.warn("[email] Pedido sin email, omitiendo."); return; }
+  if (!p.email) return;
   const lista = p.items
     .map((i) => `• ${i.nombre} x${i.cantidad} — $${(i.precio_unitario * i.cantidad).toLocaleString("es-AR")}`)
     .join("\n");
@@ -103,7 +135,7 @@ export async function emailPedidoListo(p: {
   email?: string | null;
   nombre: string;
 }) {
-  if (!p.email) { console.warn("[email] Pedido sin email, omitiendo."); return; }
+  if (!p.email) return;
   await enviar(
     p.email,
     "✅ Tu pedido está listo — Peón Pet's",
