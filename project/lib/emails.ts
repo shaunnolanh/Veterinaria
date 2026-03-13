@@ -1,8 +1,14 @@
-// Emails transaccionales con Resend — Clínica Veterinaria Peón Pet's
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-const FROM = process.env.RESEND_FROM ?? "onboarding@resend.dev";
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_APP_PASSWORD,
+  },
+});
+
+const FROM = process.env.EMAIL_FROM ?? "Peón Pet's <peonpets@gmail.com>";
 
 function fmtFecha(fecha: string) {
   const [y, m, d] = fecha.split("-");
@@ -10,15 +16,16 @@ function fmtFecha(fecha: string) {
 }
 
 async function enviar(to: string, subject: string, text: string) {
-  if (!process.env.RESEND_API_KEY) {
-    console.warn("[email] RESEND_API_KEY no configurado, omitiendo.");
+  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+    console.warn("[email] Gmail no configurado, omitiendo.");
     return;
   }
-  const { error } = await resend.emails.send({ from: FROM, to, subject, text });
-  if (error) console.error("[Resend] Error:", error);
+  try {
+    await transporter.sendMail({ from: FROM, to, subject, text });
+  } catch (err) {
+    console.error("[email] Error:", err);
+  }
 }
-
-// ─── Turnos ──────────────────────────────────────────────────────────────────
 
 export async function emailTurnoRecibido(t: {
   email?: string | null;
@@ -33,7 +40,7 @@ export async function emailTurnoRecibido(t: {
   await enviar(
     t.email,
     "Tu turno en Peón Pet's fue recibido",
-    `Hola ${t.nombre}, recibimos tu solicitud de turno.\n\nFecha: ${fmtFecha(t.fecha)} - Hora: ${t.hora}\nMascota: ${t.mascota} (${t.especie})\nMotivo: ${t.motivo || "No especificado"}\n\nTe confirmamos a la brevedad. Consultas: 03548-495677`
+    `Hola ${t.nombre}, recibimos tu solicitud de turno.\n\nFecha: ${fmtFecha(t.fecha)} - Hora: ${t.hora}\nMascota: ${t.mascota} (${t.especie})\nMotivo: ${t.motivo || "No especificado"}\n\nTe confirmamos a la brevedad.\nConsultas: 03548-495677`
   );
 }
 
@@ -79,8 +86,6 @@ export async function emailRecordatorio(t: {
     `Hola ${t.nombre}, te recordamos que hoy a las ${t.hora} tenés turno.\n\nMascota: ${t.mascota} - Motivo: ${t.motivo || "Consulta general"}\n\nDirección: Rivadavia 36, La Falda`
   );
 }
-
-// ─── Pedidos ─────────────────────────────────────────────────────────────────
 
 export async function emailPedidoRecibido(p: {
   email?: string | null;

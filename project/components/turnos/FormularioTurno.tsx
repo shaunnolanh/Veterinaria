@@ -24,6 +24,7 @@ export default function FormularioTurno({ fecha, hora, especialidad, onExito, on
     nombre: "",
     apellido: "",
     telefono: "",
+    email: "",
     mascota: "",
     especie: "perro",
     motivo: "",
@@ -125,7 +126,21 @@ export default function FormularioTurno({ fecha, hora, especialidad, onExito, on
           Lo usamos solo para confirmar tu turno.
         </p>
       </div>
-
+{/* Email */}
+      <div>
+        <label className="label-campo">Email</label>
+        <input
+          type="email"
+          className="input-campo"
+          placeholder="Ej: maria@gmail.com"
+          value={form.email}
+          onChange={(e) => actualizar("email", e.target.value)}
+          autoComplete="email"
+        />
+        <p className="text-white/40 text-xs mt-1">
+          Opcional. Te mandamos la confirmación por email.
+        </p>
+      </div>
       {/* Mascota */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>

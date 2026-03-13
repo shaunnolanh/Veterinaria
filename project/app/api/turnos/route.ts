@@ -2,12 +2,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { esDiaLaboral, generarSlotsDelDia } from "@/lib/horarios";
+import { emailTurnoRecibido } from "@/lib/emails";
 
 // POST /api/turnos — Crea un nuevo turno
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { nombre, apellido, telefono, mascota, especie, motivo, fecha, hora, especialidad } = body;
+    const { nombre, apellido, telefono, email, mascota, especie, motivo, fecha, hora, especialidad } = body;
 
     // Validaciones del lado del servidor
     if (!nombre || !apellido || !telefono || !mascota || !especie || !fecha || !hora) {
@@ -84,6 +85,7 @@ export async function POST(request: NextRequest) {
         mascota: mascota.trim(),
         especie,
         motivo: motivo?.trim() || null,
+        email: email?.trim() || null,
         fecha,
         hora,
         especialidad: especialidadFinal,
@@ -99,6 +101,16 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
+
+await emailTurnoRecibido({
+      email: nuevoTurno.email,
+      nombre: nuevoTurno.nombre,
+      fecha: nuevoTurno.fecha,
+      hora: nuevoTurno.hora,
+      mascota: nuevoTurno.mascota,
+      especie: nuevoTurno.especie,
+      motivo: nuevoTurno.motivo,
+    });
 
     return NextResponse.json({ turno: nuevoTurno }, { status: 201 });
   } catch (err) {
