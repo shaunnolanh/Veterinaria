@@ -180,7 +180,7 @@ export default function CalendarioTurnos() {
         <div className="text-6xl mb-4">🎉</div>
         <h2 className="text-2xl font-black text-verde-lima mb-2">¡Turno solicitado!</h2>
         <p className="text-white/70 mb-6">
-          Te vamos a confirmar el turno a la brevedad por WhatsApp o teléfono.
+          Te vamos a confirmar el turno a la brevedad por email.
         </p>
         <div className="bg-oscuro border border-verde-lima/30 rounded-xl p-4 mb-6 inline-block">
           <p className="text-white/60 text-sm">Tu turno solicitado</p>

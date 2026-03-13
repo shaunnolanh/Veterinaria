@@ -25,11 +25,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+// app/layout.tsx
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es-AR">
       <head>
@@ -41,10 +38,7 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-oscuro text-white min-h-screen">
-        <Header />
-        <main>{children}</main>
-        <Footer />
-        <BotonesFlotantes />
+        {children}
       </body>
     </html>
   );

@@ -20,7 +20,7 @@ function GraciasContenido() {
             </h1>
             <p className="text-white/60 mb-4">
               Tu pago está siendo procesado por Mercado Pago. Te avisamos por
-              WhatsApp cuando se confirme.
+              email cuando se confirme.
             </p>
           </>
         ) : (
@@ -30,7 +30,7 @@ function GraciasContenido() {
               ¡Pedido confirmado!
             </h1>
             <p className="text-white/60 mb-4">
-              Recibimos tu pedido y te enviamos un mensaje de confirmación por WhatsApp.
+              Recibimos tu pedido y te enviamos un mensaje de confirmación por email.
             </p>
           </>
         )}
