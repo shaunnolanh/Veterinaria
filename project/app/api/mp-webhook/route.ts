@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
       `https://api.mercadopago.com/v1/payments/${paymentId}`,
       {
         headers: {
-          Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`,
+          Authorization: `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN}`,
         },
       }
     );
@@ -107,8 +107,30 @@ export async function POST(request: NextRequest) {
       .select()
       .single();
 
-    // Si el pago fue aprobado, notificar al cliente por WhatsApp
+    // Si el pago fue aprobado, descontar stock y notificar al cliente por WhatsApp
     if (mpStatus === "approved" && pedido) {
+      const items = Array.isArray(pedido.items) ? pedido.items : [];
+
+      for (const item of items) {
+        if (!item.producto_id || !item.cantidad) continue;
+
+        const { data: producto } = await supabase
+          .from("productos")
+          .select("id, stock")
+          .eq("id", item.producto_id)
+          .single();
+
+        if (!producto) continue;
+
+        const stockActual = Number(producto.stock) || 0;
+        const nuevoStock = Math.max(stockActual - Number(item.cantidad), 0);
+
+        await supabase
+          .from("productos")
+          .update({ stock: nuevoStock, updated_at: new Date().toISOString() })
+          .eq("id", item.producto_id);
+      }
+
       await notificarPedidoConfirmado(pedido);
     }
 
