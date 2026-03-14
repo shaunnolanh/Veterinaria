@@ -10,6 +10,7 @@ export default function Header() {
     { href: "/#servicios", label: "Servicios" },
     { href: "/#equipo", label: "Equipo" },
     { href: "/#horarios", label: "Horarios" },
+    { href: "/tienda", label: "Tienda" },
     { href: "/#ubicacion", label: "Ubicación" },
     { href: "/#contacto", label: "Contacto" },
   ];
