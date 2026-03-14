@@ -68,11 +68,11 @@ export default function AdminTiendaPage() {
   const [guardandoProducto, setGuardandoProducto] = useState(false);
   const [errorProducto, setErrorProducto] = useState<string | null>(null);
 
-  // PDF import
-  const [importandoPDF, setImportandoPDF] = useState(false);
-  const [productosImportados, setProductosImportados] = useState<Partial<Producto>[] | null>(null);
-  const [guardandoImportados, setGuardandoImportados] = useState(false);
-  const inputPDFRef = useRef<HTMLInputElement>(null);
+  // CSV import
+const [importandoCSV, setImportandoCSV] = useState(false);
+const [productosImportados, setProductosImportados] = useState<Partial<Producto>[] | null>(null);
+const [guardandoImportados, setGuardandoImportados] = useState(false);
+const inputCSVRef = useRef<HTMLInputElement>(null);
 
   async function cargarProductos() {
     setCargandoProductos(true);
@@ -162,25 +162,25 @@ export default function AdminTiendaPage() {
     await cargarProductos();
   }
 
-  async function procesarPDF(e: React.ChangeEvent<HTMLInputElement>) {
-    const archivo = e.target.files?.[0];
-    if (!archivo) return;
-    setImportandoPDF(true);
-    setProductosImportados(null);
+  async function procesarCSV(e: React.ChangeEvent<HTMLInputElement>) {
+  const archivo = e.target.files?.[0];
+  if (!archivo) return;
+  setImportandoCSV(true);
+  setProductosImportados(null);
 
-    try {
-      const fd = new FormData();
-      fd.append("pdf", archivo);
-      const res = await fetch("/api/admin/importar-pdf", { method: "POST", body: fd });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      setProductosImportados(data.productos);
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "Error al procesar el PDF.");
-    } finally {
-      setImportandoPDF(false);
-      if (inputPDFRef.current) inputPDFRef.current.value = "";
-    }
+  try {
+    const fd = new FormData();
+    fd.append("csv", archivo);
+    const res = await fetch("/api/admin/importar-csv", { method: "POST", body: fd });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    setProductosImportados(data.productos);
+  } catch (err) {
+    alert(err instanceof Error ? err.message : "Error al procesar el CSV.");
+  } finally {
+    setImportandoCSV(false);
+    if (inputCSVRef.current) inputCSVRef.current.value = "";
+  }
   }
 
   async function confirmarImportacion() {
@@ -372,23 +372,23 @@ export default function AdminTiendaPage() {
                 + Agregar producto
               </button>
               <label className="bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 font-semibold px-4 py-2 rounded-xl text-sm cursor-pointer transition-all flex items-center gap-2">
-                {importandoPDF ? "Procesando PDF..." : "📄 Importar desde PDF"}
-                <input
-                  ref={inputPDFRef}
-                  type="file"
-                  accept="application/pdf"
-                  className="hidden"
-                  onChange={procesarPDF}
-                  disabled={importandoPDF}
-                />
-              </label>
+              {importandoCSV ? "Procesando..." : "📄 Importar desde CSV"}
+              <input
+              ref={inputCSVRef}
+              type="file"
+              accept=".csv"
+              className="hidden"
+              onChange={procesarCSV}
+              disabled={importandoCSV}
+              />
+            </label>
             </div>
 
             {/* Preview importación PDF */}
             {productosImportados && (
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
                 <p className="font-bold text-blue-900 mb-3">
-                  📄 {productosImportados.length} productos extraídos del PDF
+                  📄 {productosImportados.length} productos extraídos del CSV
                 </p>
                 <div className="max-h-48 overflow-y-auto space-y-1 mb-3">
                   {productosImportados.map((p, i) => (

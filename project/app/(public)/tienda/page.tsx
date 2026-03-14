@@ -4,24 +4,24 @@ import { useEffect, useMemo, useState } from "react";
 import Script from "next/script";
 import { CATEGORIA_LABELS, Producto } from "@/types";
 
-type CategoriaFiltro = "todas" | "alimentos" | "accesorios";
+type CategoriaFiltro = "todas" | "alimentos" | "accesorios" | "medicamentos" | "antiparasitarios" | "grooming" | "colchones";
 
-interface ItemCarrito {
-  producto: Producto;
-  cantidad: number;
-}
+const FILTROS: { key: CategoriaFiltro; label: string }[] = [
+  { key: "todas",           label: "Todas" },
+  { key: "alimentos",       label: "Alimentos" },
+  { key: "accesorios",      label: "Accesorios" },
+  { key: "medicamentos",    label: "Medicamentos" },
+  { key: "antiparasitarios",label: "Antiparasitarios" },
+  { key: "grooming",        label: "Grooming" },
+  { key: "colchones",       label: "Colchones" },
+];
+
 
 declare global {
   interface Window {
     MercadoPago?: new (publicKey: string, options?: { locale?: string }) => unknown;
   }
-}
-
-const FILTROS: { key: CategoriaFiltro; label: string }[] = [
-  { key: "todas", label: "Todas" },
-  { key: "alimentos", label: "Alimentos" },
-  { key: "accesorios", label: "Accesorios" },
-];
+};
 
 export default function TiendaPage() {
   const [productos, setProductos] = useState<Producto[]>([]);
