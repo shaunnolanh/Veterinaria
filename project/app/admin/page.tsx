@@ -3,6 +3,8 @@ import AdminShell from "@/components/admin/AdminShell";
 import Link from "next/link";
 import { ESPECIALIDAD_LABELS, Especialidad } from "@/types";
 
+export const dynamic = "force-dynamic";
+
 async function obtenerResumen() {
   const supabase = createAdminClient();
   const hoy = new Date();
