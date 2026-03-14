@@ -189,26 +189,27 @@ export default function AdminTiendaPage() {
     await cargarProductos();
     mostrarToast("ok", "Imagen actualizada");
   }
+}
 
-  async function procesarPDF(e: React.ChangeEvent<HTMLInputElement>) {
-    const archivo = e.target.files?.[0];
-    if (!archivo) return;
-    setImportandoPDF(true);
-    setProductosImportados(null);
+  async function procesarCSV(e: React.ChangeEvent<HTMLInputElement>) {
+  const archivo = e.target.files?.[0];
+  if (!archivo) return;
+  setImportandoCSV(true);
+  setProductosImportados(null);
 
-    try {
-      const fd = new FormData();
-      fd.append("pdf", archivo);
-      const res = await fetch("/api/admin/importar-pdf", { method: "POST", body: fd });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      setProductosImportados(data.productos);
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "Error al procesar el PDF.");
-    } finally {
-      setImportandoPDF(false);
-      if (inputPDFRef.current) inputPDFRef.current.value = "";
-    }
+  try {
+    const fd = new FormData();
+    fd.append("csv", archivo);
+    const res = await fetch("/api/admin/importar-csv", { method: "POST", body: fd });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    setProductosImportados(data.productos);
+  } catch (err) {
+    alert(err instanceof Error ? err.message : "Error al procesar el CSV.");
+  } finally {
+    setImportandoCSV(false);
+    if (inputCSVRef.current) inputCSVRef.current.value = "";
+  }
   }
 
   async function procesarCSV(e: React.ChangeEvent<HTMLInputElement>) {
@@ -451,7 +452,7 @@ export default function AdminTiendaPage() {
             {productosImportados && (
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
                 <p className="font-bold text-blue-900 mb-3">
-                  📄 {productosImportados.length} productos extraídos del PDF
+                  📄 {productosImportados.length} productos extraídos del CSV
                 </p>
                 <div className="max-h-48 overflow-y-auto space-y-1 mb-3">
                   {productosImportados.map((p, i) => (
@@ -711,6 +712,15 @@ export default function AdminTiendaPage() {
           </div>
         </div>
       )}
+      {toast && (
+  <div className={`fixed top-6 right-6 z-50 px-4 py-3 rounded-xl shadow-lg text-sm font-semibold ${
+    toast.tipo === "ok" ? "bg-green-500 text-white" :
+    toast.tipo === "error" ? "bg-red-500 text-white" :
+    "bg-gray-800 text-white"
+  }`}>
+    {toast.mensaje}
+  </div>
+)}
     </AdminShell>
   );
 }

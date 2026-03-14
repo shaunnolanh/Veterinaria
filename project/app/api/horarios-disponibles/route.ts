@@ -2,9 +2,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { esDiaLaboral } from "@/lib/horarios";
-
-export const dynamic = "force-dynamic";
-
+export const dynamic = 'force-dynamic';
+main
 // GET /api/horarios-disponibles?fecha=YYYY-MM-DD
 export async function GET(request: NextRequest) {
   try {
