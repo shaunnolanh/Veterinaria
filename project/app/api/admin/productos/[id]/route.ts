@@ -42,9 +42,22 @@ export async function POST(
       return NextResponse.json({ error: "No se recibió imagen." }, { status: 400 });
     }
 
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error("[admin/productos/:id POST] Falta SUPABASE_SERVICE_ROLE_KEY.");
+      return NextResponse.json({ error: "Configuración de Supabase incompleta." }, { status: 500 });
+    }
+
     const supabase = createAdminClient();
-    const extension = archivo.name.split(".").pop();
+    const extension = archivo.name.split(".").pop() || "jpg";
     const nombreArchivo = `${id}.${extension}`;
+
+    console.log("[admin/productos/:id POST] Subiendo imagen", {
+      productoId: id,
+      nombreArchivo,
+      tipo: archivo.type,
+      tamano: archivo.size,
+      usaServiceRole: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
+    });
 
     const arrayBuffer = await archivo.arrayBuffer();
     const { error: errorUpload } = await supabase.storage
@@ -55,6 +68,7 @@ export async function POST(
       });
 
     if (errorUpload) {
+      console.error("[admin/productos/:id POST] Error al subir a Storage:", errorUpload);
       return NextResponse.json({ error: "No se pudo subir la imagen." }, { status: 500 });
     }
 
@@ -62,14 +76,29 @@ export async function POST(
       .from("productos-imagenes")
       .getPublicUrl(nombreArchivo);
 
-    // Actualizar la imagen_url del producto
-    await supabase
-      .from("productos")
-      .update({ imagen_url: urlData.publicUrl, updated_at: new Date().toISOString() })
-      .eq("id", id);
+    const publicUrl = urlData.publicUrl;
+    console.log("[admin/productos/:id POST] URL pública generada", {
+      productoId: id,
+      publicUrl,
+    });
 
-    return NextResponse.json({ imagen_url: urlData.publicUrl });
-  } catch {
+    const { data: productoActualizado, error: errorUpdate } = await supabase
+      .from("productos")
+      .update({ imagen_url: publicUrl, updated_at: new Date().toISOString() })
+      .eq("id", id)
+      .select("id, imagen_url")
+      .single();
+
+    if (errorUpdate) {
+      console.error("[admin/productos/:id POST] Error al actualizar imagen_url:", errorUpdate);
+      return NextResponse.json({ error: "No se pudo guardar la URL de la imagen." }, { status: 500 });
+    }
+
+    console.log("[admin/productos/:id POST] Producto actualizado", productoActualizado);
+
+    return NextResponse.json({ imagen_url: publicUrl, producto: productoActualizado });
+  } catch (error) {
+    console.error("[admin/productos/:id POST] Error interno:", error);
     return NextResponse.json({ error: "Error interno." }, { status: 500 });
   }
 }
