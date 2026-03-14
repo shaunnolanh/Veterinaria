@@ -4,6 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 import Script from "next/script";
 import { CATEGORIA_LABELS, Producto } from "@/types";
 
+interface ItemCarrito {
+  producto: Producto;
+  cantidad: number;
+}
 type CategoriaFiltro = "todas" | "alimentos" | "accesorios" | "medicamentos" | "antiparasitarios" | "grooming" | "colchones";
 
 const FILTROS: { key: CategoriaFiltro; label: string }[] = [
