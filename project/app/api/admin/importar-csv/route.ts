@@ -1,18 +1,38 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase-server";
+import { CategoriaProducto } from "@/types";
 
-// Mapeo de nombres de categoría del CSV a los valores de la base de datos
-const CATEGORIA_MAP: Record<string, string> = {
-  "alimentos y bolsas": "alimentos",
-  "alimentos":          "alimentos",
-  "medicamentos":       "medicamentos",
-  "accesorios":         "accesorios",
-  "antiparasitarios":   "antiparasitarios",
-  "shampoos y grooming":"grooming",
-  "grooming":           "grooming",
-  "colchones y cuchas": "colchones",
-  "colchones":          "colchones",
-};
+const CATEGORIAS_VALIDAS: CategoriaProducto[] = [
+  "alimentos",
+  "medicamentos",
+  "accesorios",
+  "antiparasitarios",
+  "shampoos",
+  "colchones",
+];
+
+function detectarSeparador(cabecera: string) {
+  const comas = (cabecera.match(/,/g) || []).length;
+  const puntosComa = (cabecera.match(/;/g) || []).length;
+  return puntosComa > comas ? ";" : ",";
+}
+
+function normalizarCategoria(valor: string): CategoriaProducto {
+  const limpia = (valor || "").trim().toLowerCase();
+  return CATEGORIAS_VALIDAS.includes(limpia as CategoriaProducto)
+    ? (limpia as CategoriaProducto)
+    : "accesorios";
+}
+
+function parseNumero(valor: string) {
+  const normalizado = (valor || "")
+    .trim()
+    .replace(/\./g, "")
+    .replace(",", ".")
+    .replace(/[^\d.-]/g, "");
+  const numero = Number(normalizado);
+  return Number.isFinite(numero) ? numero : 0;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,73 +40,64 @@ export async function POST(request: NextRequest) {
     const archivo = formData.get("csv") as File | null;
 
     if (!archivo) {
-      return NextResponse.json({ error: "No se recibió ningún archivo." }, { status: 400 });
+      return NextResponse.json({ error: "No se recibió el archivo CSV." }, { status: 400 });
     }
 
-    const texto = await archivo.text();
-    const lineas = texto.split("\n").map((l) => l.trim()).filter(Boolean);
+    const contenido = await archivo.text();
+    const lineas = contenido
+      .split(/\r?\n/)
+      .map((linea) => linea.trim())
+      .filter(Boolean);
 
     if (lineas.length < 2) {
-      return NextResponse.json({ error: "El CSV está vacío o no tiene datos." }, { status: 400 });
+      return NextResponse.json({ error: "El CSV no contiene filas de productos." }, { status: 400 });
     }
 
-    // Primera línea = encabezados, ignorarla
-    const filas = lineas.slice(1);
+    const separador = detectarSeparador(lineas[0]);
+    const cabeceras = lineas[0].split(separador).map((c) => c.trim().toLowerCase());
 
-    const productos = [];
-    const errores = [];
+    const idxNombre = cabeceras.indexOf("nombre");
+    const idxDescripcion = cabeceras.indexOf("descripcion");
+    const idxPrecio = cabeceras.indexOf("precio");
+    const idxCategoria = cabeceras.indexOf("categoria");
+    const idxStock = cabeceras.indexOf("stock");
 
-    for (let i = 0; i < filas.length; i++) {
-      const cols = filas[i].split(",").map((c) => c.trim());
-
-      // Espera: nombre, descripcion, precio, stock, categoria
-      if (cols.length < 5) {
-        errores.push(`Fila ${i + 2}: columnas insuficientes`);
-        continue;
-      }
-
-      const [nombre, descripcion, precioStr, stockStr, categoriaRaw] = cols;
-
-      const precio = Number(precioStr);
-      const stock = Number(stockStr);
-
-      if (!nombre) {
-        errores.push(`Fila ${i + 2}: nombre vacío`);
-        continue;
-      }
-      if (isNaN(precio) || precio < 0) {
-        errores.push(`Fila ${i + 2}: precio inválido "${precioStr}"`);
-        continue;
-      }
-
-      const categoriaKey = categoriaRaw.toLowerCase();
-      const categoria = CATEGORIA_MAP[categoriaKey];
-
-      if (!categoria) {
-        errores.push(`Fila ${i + 2}: categoría desconocida "${categoriaRaw}"`);
-        continue;
-      }
-
-      productos.push({
-        nombre,
-        descripcion: descripcion || null,
-        precio,
-        stock: isNaN(stock) ? 0 : stock,
-        categoria,
-        activo: true,
-      });
-    }
-
-    if (productos.length === 0) {
+    if (idxNombre === -1 || idxPrecio === -1 || idxCategoria === -1) {
       return NextResponse.json(
-        { error: "No se pudo procesar ningún producto.", errores },
+        { error: "Cabeceras requeridas: nombre, precio, categoria (opcional: descripcion, stock)." },
         { status: 400 }
       );
     }
 
-    return NextResponse.json({ productos, errores });
-  } catch (err) {
-    console.error("Error al importar CSV:", err);
-    return NextResponse.json({ error: "Error interno del servidor." }, { status: 500 });
+    const productos = lineas
+      .slice(1)
+      .map((linea) => {
+        const cols = linea.split(separador).map((c) => c.trim());
+        return {
+          nombre: cols[idxNombre] || "",
+          descripcion: idxDescripcion >= 0 ? cols[idxDescripcion] || null : null,
+          precio: parseNumero(cols[idxPrecio] || "0"),
+          categoria: normalizarCategoria(cols[idxCategoria] || "accesorios"),
+          stock: Math.max(parseNumero(idxStock >= 0 ? cols[idxStock] || "0" : "0"), 0),
+          activo: true,
+        };
+      })
+      .filter((p) => p.nombre);
+
+    if (!productos.length) {
+      return NextResponse.json({ error: "No hay productos válidos para importar." }, { status: 400 });
+    }
+
+    const supabase = createAdminClient();
+    const { data, error } = await supabase.from("productos").insert(productos).select();
+
+    if (error) {
+      return NextResponse.json({ error: "No se pudieron importar los productos." }, { status: 500 });
+    }
+
+    return NextResponse.json({ productos: data || [], cantidad: data?.length || 0 }, { status: 201 });
+  } catch (error) {
+    console.error("Error importar-csv:", error);
+    return NextResponse.json({ error: "Error interno al importar CSV." }, { status: 500 });
   }
 }
