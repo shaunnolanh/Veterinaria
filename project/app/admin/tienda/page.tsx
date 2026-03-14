@@ -73,6 +73,12 @@ const [importandoCSV, setImportandoCSV] = useState(false);
 const [productosImportados, setProductosImportados] = useState<Partial<Producto>[] | null>(null);
 const [guardandoImportados, setGuardandoImportados] = useState(false);
 const inputCSVRef = useRef<HTMLInputElement>(null);
+const [toast, setToast] = useState<{ mensaje: string; tipo: "info" | "ok" | "error" } | null>(null);
+
+function mostrarToast(mensaje: string, tipo: "info" | "ok" | "error") {
+  setToast({ mensaje, tipo });
+  setTimeout(() => setToast(null), 3000);
+}
 
   async function cargarProductos() {
     setCargandoProductos(true);
@@ -156,11 +162,17 @@ const inputCSVRef = useRef<HTMLInputElement>(null);
   }
 
   async function subirImagen(productoId: string, archivo: File) {
-    const fd = new FormData();
-    fd.append("imagen", archivo);
-    await fetch(`/api/admin/productos/${productoId}`, { method: "POST", body: fd });
+  const fd = new FormData();
+  fd.append("imagen", archivo);
+  mostrarToast("Subiendo imagen...", "info");
+  const res = await fetch(`/api/admin/productos/${productoId}`, { method: "POST", body: fd });
+  if (res.ok) {
     await cargarProductos();
+    mostrarToast("✅ Imagen subida correctamente.", "ok");
+  } else {
+    mostrarToast("❌ Error al subir la imagen.", "error");
   }
+}
 
   async function procesarCSV(e: React.ChangeEvent<HTMLInputElement>) {
   const archivo = e.target.files?.[0];
@@ -634,6 +646,15 @@ const inputCSVRef = useRef<HTMLInputElement>(null);
           </div>
         </div>
       )}
+      {toast && (
+  <div className={`fixed top-6 right-6 z-50 px-4 py-3 rounded-xl shadow-lg text-sm font-semibold ${
+    toast.tipo === "ok" ? "bg-green-500 text-white" :
+    toast.tipo === "error" ? "bg-red-500 text-white" :
+    "bg-gray-800 text-white"
+  }`}>
+    {toast.mensaje}
+  </div>
+)}
     </AdminShell>
   );
 }
