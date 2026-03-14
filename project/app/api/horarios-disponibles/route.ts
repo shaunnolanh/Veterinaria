@@ -2,13 +2,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { esDiaLaboral } from "@/lib/horarios";
-<<<<<<< HEAD
 export const dynamic = 'force-dynamic';
-=======
-
-export const dynamic = "force-dynamic";
-
->>>>>>> origin/codex/add-public-shop-page-and-mercadopago-integration-ojrfd7
+main
 // GET /api/horarios-disponibles?fecha=YYYY-MM-DD
 export async function GET(request: NextRequest) {
   try {

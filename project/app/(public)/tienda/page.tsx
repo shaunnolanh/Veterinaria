@@ -3,11 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import Script from "next/script";
 import { CATEGORIA_LABELS, Producto } from "@/types";
-<<<<<<< HEAD
-=======
 
-type CategoriaFiltro = "todas" | "alimentos" | "accesorios";
->>>>>>> origin/codex/add-public-shop-page-and-mercadopago-integration-ojrfd7
+type CategoriaFiltro = "todas" | "alimentos" | "accesorios" | "medicamentos" | "antiparasitarios" | "grooming" | "colchones";
+main
 
 interface ItemCarrito {
   producto: Producto;
@@ -15,7 +13,6 @@ interface ItemCarrito {
 }
 type CategoriaFiltro = "todas" | "alimentos" | "accesorios" | "medicamentos" | "antiparasitarios" | "grooming" | "colchones";
 
-<<<<<<< HEAD
 const FILTROS: { key: CategoriaFiltro; label: string }[] = [
   { key: "todas",           label: "Todas" },
   { key: "alimentos",       label: "Alimentos" },
@@ -24,7 +21,6 @@ const FILTROS: { key: CategoriaFiltro; label: string }[] = [
   { key: "antiparasitarios",label: "Antiparasitarios" },
   { key: "grooming",        label: "Grooming" },
   { key: "colchones",       label: "Colchones" },
-=======
 declare global {
   interface Window {
     MercadoPago?: new (publicKey: string, options?: { locale?: string }) => unknown;
@@ -35,7 +31,11 @@ const FILTROS: { key: CategoriaFiltro; label: string }[] = [
   { key: "todas", label: "Todas" },
   { key: "alimentos", label: "Alimentos" },
   { key: "accesorios", label: "Accesorios" },
->>>>>>> origin/codex/add-public-shop-page-and-mercadopago-integration-ojrfd7
+  { key: "medicamentos", label: "Medicamentos" },
+  { key: "antiparasitarios", label: "Antiparasitarios" },
+  { key: "grooming", label: "Grooming" },
+  { key: "colchones", label: "Colchones" },
+main
 ];
 
 
@@ -69,6 +69,11 @@ export default function TiendaPage() {
 
   const productosFiltrados = useMemo(() => {
     if (categoriaActiva === "todas") return productos;
+
+    if (categoriaActiva === "grooming") {
+      return productos.filter((producto) => producto.categoria === "shampoos");
+    }
+
     return productos.filter((producto) => producto.categoria === categoriaActiva);
   }, [productos, categoriaActiva]);
 

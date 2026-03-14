@@ -6,6 +6,7 @@ import { Producto, Pedido, CategoriaProducto, EstadoPedido, CATEGORIA_LABELS, It
 
 type TabActiva = "pedidos" | "productos";
 type FiltroPedido = "todos" | EstadoPedido;
+type ToastTipo = "ok" | "error";
 
 const ESTADO_PEDIDO_CONFIG: Record<EstadoPedido, { label: string; bg: string; text: string }> = {
   pendiente: { label: "Pendiente", bg: "bg-yellow-100", text: "text-yellow-700" },
@@ -68,17 +69,20 @@ export default function AdminTiendaPage() {
   const [guardandoProducto, setGuardandoProducto] = useState(false);
   const [errorProducto, setErrorProducto] = useState<string | null>(null);
 
-  // CSV import
-const [importandoCSV, setImportandoCSV] = useState(false);
-const [productosImportados, setProductosImportados] = useState<Partial<Producto>[] | null>(null);
-const [guardandoImportados, setGuardandoImportados] = useState(false);
-const inputCSVRef = useRef<HTMLInputElement>(null);
-const [toast, setToast] = useState<{ mensaje: string; tipo: "info" | "ok" | "error" } | null>(null);
+  // PDF/CSV import
+  const [importandoPDF, setImportandoPDF] = useState(false);
+  const [productosImportados, setProductosImportados] = useState<Partial<Producto>[] | null>(null);
+  const [guardandoImportados, setGuardandoImportados] = useState(false);
+  const [importandoCSV, setImportandoCSV] = useState(false);
+  const inputPDFRef = useRef<HTMLInputElement>(null);
+  const inputCSVRef = useRef<HTMLInputElement>(null);
 
-function mostrarToast(mensaje: string, tipo: "info" | "ok" | "error") {
-  setToast({ mensaje, tipo });
-  setTimeout(() => setToast(null), 3000);
-}
+  const [toast, setToast] = useState<{ tipo: ToastTipo; mensaje: string } | null>(null);
+
+  function mostrarToast(tipo: ToastTipo, mensaje: string) {
+    setToast({ tipo, mensaje });
+    setTimeout(() => setToast(null), 3200);
+  }
 
   async function cargarProductos() {
     setCargandoProductos(true);
@@ -145,32 +149,45 @@ function mostrarToast(mensaje: string, tipo: "info" | "ok" | "error") {
       if (!res.ok) throw new Error(data.error);
       setMostrarFormProducto(false);
       await cargarProductos();
+      mostrarToast("ok", editando ? "Producto actualizado" : "Producto creado");
     } catch (err) {
-      setErrorProducto(err instanceof Error ? err.message : "Error al guardar.");
+      const mensaje = err instanceof Error ? err.message : "Error al guardar.";
+      setErrorProducto(mensaje);
+      mostrarToast("error", mensaje);
     } finally {
       setGuardandoProducto(false);
     }
   }
 
   async function toggleActivo(producto: Producto) {
-    await fetch(`/api/admin/productos/${producto.id}`, {
+    const res = await fetch(`/api/admin/productos/${producto.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ activo: !producto.activo }),
     });
+
+    if (!res.ok) {
+      mostrarToast("error", "No se pudo actualizar el estado del producto.");
+      return;
+    }
+
     await cargarProductos();
+    mostrarToast("ok", producto.activo ? "Producto desactivado" : "Producto activado");
   }
 
   async function subirImagen(productoId: string, archivo: File) {
-  const fd = new FormData();
-  fd.append("imagen", archivo);
-  mostrarToast("Subiendo imagen...", "info");
-  const res = await fetch(`/api/admin/productos/${productoId}`, { method: "POST", body: fd });
-  if (res.ok) {
+    const fd = new FormData();
+    fd.append("imagen", archivo);
+    const res = await fetch(`/api/admin/productos/${productoId}`, { method: "POST", body: fd });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      mostrarToast("error", data.error || "No se pudo subir la imagen.");
+      return;
+    }
+
     await cargarProductos();
-    mostrarToast("✅ Imagen subida correctamente.", "ok");
-  } else {
-    mostrarToast("❌ Error al subir la imagen.", "error");
+    mostrarToast("ok", "Imagen actualizada");
   }
 }
 
@@ -195,6 +212,29 @@ function mostrarToast(mensaje: string, tipo: "info" | "ok" | "error") {
   }
   }
 
+  async function procesarCSV(e: React.ChangeEvent<HTMLInputElement>) {
+    const archivo = e.target.files?.[0];
+    if (!archivo) return;
+
+    setImportandoCSV(true);
+
+    try {
+      const fd = new FormData();
+      fd.append("csv", archivo);
+      const res = await fetch("/api/admin/importar-csv", { method: "POST", body: fd });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error al importar CSV.");
+
+      await cargarProductos();
+      mostrarToast("ok", `CSV importado: ${data.cantidad ?? 0} productos`);
+    } catch (err) {
+      mostrarToast("error", err instanceof Error ? err.message : "Error al importar CSV.");
+    } finally {
+      setImportandoCSV(false);
+      if (inputCSVRef.current) inputCSVRef.current.value = "";
+    }
+  }
+
   async function confirmarImportacion() {
     if (!productosImportados) return;
     setGuardandoImportados(true);
@@ -208,6 +248,7 @@ function mostrarToast(mensaje: string, tipo: "info" | "ok" | "error") {
     setProductosImportados(null);
     setGuardandoImportados(false);
     await cargarProductos();
+    mostrarToast("ok", "Productos importados correctamente.");
   }
 
   return (
@@ -384,16 +425,27 @@ function mostrarToast(mensaje: string, tipo: "info" | "ok" | "error") {
                 + Agregar producto
               </button>
               <label className="bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 font-semibold px-4 py-2 rounded-xl text-sm cursor-pointer transition-all flex items-center gap-2">
-              {importandoCSV ? "Procesando..." : "📄 Importar desde CSV"}
-              <input
-              ref={inputCSVRef}
-              type="file"
-              accept=".csv"
-              className="hidden"
-              onChange={procesarCSV}
-              disabled={importandoCSV}
-              />
-            </label>
+                {importandoPDF ? "Procesando PDF..." : "📄 Importar desde PDF"}
+                <input
+                  ref={inputPDFRef}
+                  type="file"
+                  accept="application/pdf"
+                  className="hidden"
+                  onChange={procesarPDF}
+                  disabled={importandoPDF}
+                />
+              </label>
+              <label className="bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 font-semibold px-4 py-2 rounded-xl text-sm cursor-pointer transition-all flex items-center gap-2">
+                {importandoCSV ? "Importando CSV..." : "📑 Importar desde CSV"}
+                <input
+                  ref={inputCSVRef}
+                  type="file"
+                  accept=".csv,text/csv"
+                  className="hidden"
+                  onChange={procesarCSV}
+                  disabled={importandoCSV}
+                />
+              </label>
             </div>
 
             {/* Preview importación PDF */}
@@ -538,6 +590,20 @@ function mostrarToast(mensaje: string, tipo: "info" | "ok" | "error") {
       </div>
 
       {/* Modal producto */}
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-[60]">
+          <div
+            className={`px-4 py-3 rounded-xl shadow-lg text-sm font-semibold ${
+              toast.tipo === "ok"
+                ? "bg-green-600 text-white"
+                : "bg-red-600 text-white"
+            }`}
+          >
+            {toast.mensaje}
+          </div>
+        </div>
+      )}
+
       {mostrarFormProducto && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 space-y-4 max-h-[90vh] overflow-y-auto">
