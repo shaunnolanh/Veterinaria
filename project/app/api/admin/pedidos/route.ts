@@ -2,12 +2,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase-server";
 import { EstadoPedido } from "@/types";
+import { sanitizeText } from "@/lib/request-security";
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const estado = searchParams.get("estado") as EstadoPedido | "todos" | null;
-    const periodo = searchParams.get("periodo") || "todos"; // hoy | semana | todos
+    const estado = sanitizeText(searchParams.get("estado"), 20) as EstadoPedido | "todos" | "";
+    const periodo = sanitizeText(searchParams.get("periodo"), 20) || "todos"; // hoy | semana | todos
 
     const supabase = createAdminClient();
     let query = supabase

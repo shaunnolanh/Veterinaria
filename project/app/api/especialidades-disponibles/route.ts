@@ -3,11 +3,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase-server";
 import { Especialidad } from "@/types";
+import { sanitizeText } from "@/lib/request-security";
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const especialidad = searchParams.get("especialidad") as Exclude<Especialidad, "clinica"> | null;
+    const especialidad = sanitizeText(searchParams.get("especialidad"), 40) as Exclude<Especialidad, "clinica"> | "";
 
     if (!especialidad) {
       return NextResponse.json({ error: "Falta el parámetro especialidad." }, { status: 400 });

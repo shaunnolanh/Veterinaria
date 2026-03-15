@@ -3,10 +3,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase-server";
 import { EstadoTurno } from "@/types";
 import { emailTurnoConfirmado, emailTurnoCancelado, emailRecordatorio } from "@/lib/emails";
+import { sanitizeText } from "@/lib/request-security";
 
 export async function POST(request: NextRequest) {
   try {
-    const { turnoId, estado, notasAdmin } = await request.json() as {
+    const body = await request.json();
+    const turnoId = sanitizeText(body.turnoId, 64);
+    const estado = sanitizeText(body.estado, 20) as EstadoTurno;
+    const notasAdmin = sanitizeText(body.notasAdmin, 500) || null;
+
+    const _typed = body as {
       turnoId: string;
       estado: EstadoTurno;
       notasAdmin?: string;

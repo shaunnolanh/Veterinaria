@@ -1,6 +1,7 @@
 // POST /api/admin/login — Autenticación con cookie JWT
 import { NextRequest, NextResponse } from "next/server";
 import { crearSesionToken } from "@/lib/auth";
+import { sanitizeText } from "@/lib/request-security";
 
 // Rate limiting en memoria: máx 5 intentos por IP cada 10 minutos
 const intentosFallidos = new Map<string, { count: number; resetAt: number }>();
@@ -36,7 +37,9 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { usuario, contrasena } = await request.json();
+    const body = await request.json();
+    const usuario = sanitizeText(body.usuario, 80);
+    const contrasena = sanitizeText(body.contrasena, 120);
 
     const usuarioCorrecto = usuario === process.env.ADMIN_USER;
     const contrasenaCorrrecta = contrasena === process.env.ADMIN_PASSWORD;

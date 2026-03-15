@@ -1,11 +1,12 @@
 // GET/POST/DELETE /api/admin/especialidades — Gestión de fechas de especialistas
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase-server";
+import { sanitizeDate, sanitizeNumber, sanitizeText, sanitizeTime } from "@/lib/request-security";
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const especialidad = searchParams.get("especialidad");
+    const especialidad = sanitizeText(searchParams.get("especialidad"), 40);
 
     const supabase = createAdminClient();
     let query = supabase
@@ -33,7 +34,11 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { especialidad, fecha, hora_inicio, hora_fin, intervalo_minutos } = body;
+    const especialidad = sanitizeText(body.especialidad, 40);
+    const fecha = sanitizeDate(body.fecha);
+    const hora_inicio = sanitizeTime(body.hora_inicio);
+    const hora_fin = sanitizeTime(body.hora_fin);
+    const intervalo_minutos = sanitizeNumber(body.intervalo_minutos, { min: 5, max: 240 }) || 30;
 
     if (!especialidad || !fecha || !hora_inicio || !hora_fin) {
       return NextResponse.json({ error: "Faltan datos obligatorios." }, { status: 400 });
@@ -66,7 +71,7 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const id = searchParams.get("id");
+    const id = sanitizeText(searchParams.get("id"), 64);
 
     if (!id) {
       return NextResponse.json({ error: "Falta el ID." }, { status: 400 });

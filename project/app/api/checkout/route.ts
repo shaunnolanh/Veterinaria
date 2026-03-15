@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase-server";
+import { sanitizeNumber, sanitizeText } from "@/lib/request-security";
 
 interface CheckoutBody {
   items: {
@@ -19,6 +20,10 @@ export async function POST(request: NextRequest) {
     }
 
     const body = (await request.json()) as CheckoutBody;
+    body.items = (Array.isArray(body.items) ? body.items : []).map((item) => ({
+      producto_id: sanitizeText(item?.producto_id, 64),
+      cantidad: sanitizeNumber(item?.cantidad, { min: 1, max: 999 }) || 0,
+    }));
     if (!body.items?.length) {
       return NextResponse.json({ error: "El carrito está vacío." }, { status: 400 });
     }
