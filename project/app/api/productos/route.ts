@@ -1,6 +1,8 @@
 // GET /api/productos — Productos activos para la tienda pública
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase-server";
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export async function GET() {
   try {
