@@ -2,12 +2,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { esDiaLaboral } from "@/lib/horarios";
+import { sanitizeDate } from "@/lib/request-security";
 export const dynamic = 'force-dynamic';
 // GET /api/horarios-disponibles?fecha=YYYY-MM-DD
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const fecha = searchParams.get("fecha");
+    const fecha = sanitizeDate(searchParams.get("fecha"));
 
     if (!fecha) {
       return NextResponse.json({ error: "Falta el parámetro fecha." }, { status: 400 });

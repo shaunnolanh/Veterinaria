@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase-server";
 import { ItemPedido } from "@/types";
+import { sanitizeNumber, sanitizePhone, sanitizeText } from "@/lib/request-security";
 
 export async function POST(request: NextRequest) {
   if (!process.env.MP_ACCESS_TOKEN) {
@@ -13,7 +14,20 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { nombre, apellido, telefono, items, total } = body as {
+    const nombre = sanitizeText(body.nombre, 80);
+    const apellido = sanitizeText(body.apellido, 80);
+    const telefono = sanitizePhone(body.telefono);
+    const items: ItemPedido[] = (Array.isArray(body.items) ? body.items : [])
+      .map((item: any) => ({
+        producto_id: sanitizeText(item?.producto_id, 64),
+        nombre: sanitizeText(item?.nombre, 120),
+        cantidad: sanitizeNumber(item?.cantidad, { min: 1, max: 999 }) || 0,
+        precio_unitario: sanitizeNumber(item?.precio_unitario, { min: 0, max: 10_000_000 }) || 0,
+      }))
+      .filter((item: ItemPedido) => item.nombre && item.cantidad > 0);
+    const total = sanitizeNumber(body.total, { min: 0, max: 10_000_000 }) || 0;
+
+    const _typed = body as {
       nombre: string;
       apellido: string;
       telefono: string;
@@ -50,7 +64,7 @@ export async function POST(request: NextRequest) {
 
     // Crear preferencia en Mercado Pago
     const preferencia = {
-      items: items.map((item) => ({
+      items: items.map((item: any) => ({
         title: item.nombre,
         quantity: item.cantidad,
         unit_price: item.precio_unitario,

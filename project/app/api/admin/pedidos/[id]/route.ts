@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase-server";
 import { EstadoPedido } from "@/types";
+import { sanitizeText } from "@/lib/request-security";
 
 async function notificarPedidoPorWhatsApp(
   telefono: string,
@@ -70,7 +71,9 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
-    const { estado } = await request.json() as { estado: EstadoPedido };
+    const pedidoId = sanitizeText(id, 64);
+    const body = await request.json();
+    const estado = sanitizeText(body.estado, 20) as EstadoPedido;
 
     const estadosValidos: EstadoPedido[] = ["pendiente", "confirmado", "listo", "retirado", "cancelado"];
     if (!estadosValidos.includes(estado)) {
@@ -82,7 +85,7 @@ export async function PATCH(
     const { data: pedido, error: errorGet } = await supabase
       .from("pedidos")
       .select("*")
-      .eq("id", id)
+      .eq("id", pedidoId)
       .single();
 
     if (errorGet || !pedido) {
@@ -92,7 +95,7 @@ export async function PATCH(
     const { data: pedidoActualizado, error: errorUpdate } = await supabase
       .from("pedidos")
       .update({ estado, updated_at: new Date().toISOString() })
-      .eq("id", id)
+      .eq("id", pedidoId)
       .select()
       .single();
 

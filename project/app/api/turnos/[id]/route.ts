@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { EstadoTurno } from "@/types";
+import { sanitizeText } from "@/lib/request-security";
 
 // PATCH /api/turnos/[id] — Actualiza el estado de un turno
 export async function PATCH(
@@ -10,8 +11,11 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
+    const turnoId = sanitizeText(id, 64);
     const body = await request.json();
-    const { estado, notas_admin } = body as {
+    const estado = sanitizeText(body.estado, 20) as EstadoTurno;
+    const notas_admin = sanitizeText(body.notas_admin, 500) || null;
+    const _typed = body as {
       estado: EstadoTurno;
       notas_admin?: string;
     };
@@ -35,7 +39,7 @@ export async function PATCH(
     const { data, error } = await supabase
       .from("turnos")
       .update({ estado, notas_admin: notas_admin || null })
-      .eq("id", id)
+      .eq("id", turnoId)
       .select()
       .single();
 

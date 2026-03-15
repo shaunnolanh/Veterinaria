@@ -1,6 +1,7 @@
 // PATCH /api/admin/productos/[id] — Actualiza un producto (editar o desactivar)
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase-server";
+import { sanitizeNumber, sanitizeText } from "@/lib/request-security";
 
 export async function PATCH(
   request: NextRequest,
@@ -8,13 +9,23 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
+    const productoId = sanitizeText(id, 64);
     const body = await request.json();
+    const payload = {
+      nombre: sanitizeText(body.nombre, 120),
+      descripcion: sanitizeText(body.descripcion, 1000) || null,
+      precio: sanitizeNumber(body.precio, { min: 0, max: 10_000_000 }),
+      categoria: sanitizeText(body.categoria, 40),
+      imagen_url: sanitizeText(body.imagen_url, 300) || null,
+      stock: sanitizeNumber(body.stock, { min: 0, max: 1_000_000 }),
+      activo: typeof body.activo === "boolean" ? body.activo : undefined,
+    };
 
     const supabase = createAdminClient();
     const { data, error } = await supabase
       .from("productos")
-      .update({ ...body, updated_at: new Date().toISOString() })
-      .eq("id", id)
+      .update({ ...payload, updated_at: new Date().toISOString() })
+      .eq("id", productoId)
       .select()
       .single();
 
@@ -35,6 +46,7 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
+    const productoId = sanitizeText(id, 64);
     const formData = await request.formData();
     const archivo = formData.get("imagen") as File | null;
 
@@ -49,7 +61,7 @@ export async function POST(
 
     const supabase = createAdminClient();
     const extension = archivo.name.split(".").pop() || "jpg";
-    const nombreArchivo = `${id}.${extension}`;
+    const nombreArchivo = `${productoId}.${extension}`;
 
     console.log("[admin/productos/:id POST] Subiendo imagen", {
       productoId: id,
@@ -85,7 +97,7 @@ export async function POST(
     const { data: productoActualizado, error: errorUpdate } = await supabase
       .from("productos")
       .update({ imagen_url: publicUrl, updated_at: new Date().toISOString() })
-      .eq("id", id)
+      .eq("id", productoId)
       .select("id, imagen_url")
       .single();
 

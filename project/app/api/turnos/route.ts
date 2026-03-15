@@ -3,12 +3,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { esDiaLaboral, generarSlotsDelDia } from "@/lib/horarios";
 import { emailTurnoRecibido } from "@/lib/emails";
+import { sanitizeDate, sanitizeEmail, sanitizePhone, sanitizeText, sanitizeTime } from "@/lib/request-security";
 
 // POST /api/turnos — Crea un nuevo turno
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { nombre, apellido, telefono, email, mascota, especie, motivo, fecha, hora, especialidad } = body;
+    const nombre = sanitizeText(body.nombre, 80);
+    const apellido = sanitizeText(body.apellido, 80);
+    const telefono = sanitizePhone(body.telefono);
+    const email = body.email ? sanitizeEmail(body.email) : "";
+    const mascota = sanitizeText(body.mascota, 80);
+    const especie = sanitizeText(body.especie, 40);
+    const motivo = sanitizeText(body.motivo, 500);
+    const fecha = sanitizeDate(body.fecha);
+    const hora = sanitizeTime(body.hora);
+    const especialidad = sanitizeText(body.especialidad, 40);
 
     // Validaciones del lado del servidor
     if (!nombre || !apellido || !telefono || !mascota || !especie || !fecha || !hora) {
@@ -79,13 +89,13 @@ export async function POST(request: NextRequest) {
     const { data: nuevoTurno, error } = await supabase
       .from("turnos")
       .insert({
-        nombre: nombre.trim(),
-        apellido: apellido.trim(),
-        telefono: telefono.trim(),
-        mascota: mascota.trim(),
+        nombre,
+        apellido,
+        telefono,
+        mascota,
         especie,
-        motivo: motivo?.trim() || null,
-        email: email?.trim() || null,
+        motivo: motivo || null,
+        email: email || null,
         fecha,
         hora,
         especialidad: especialidadFinal,

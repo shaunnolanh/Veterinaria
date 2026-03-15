@@ -1,6 +1,7 @@
 // POST /api/mp-webhook — Recibe notificaciones de Mercado Pago
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase-server";
+import { sanitizeText } from "@/lib/request-security";
 
 async function notificarPedidoConfirmado(pedido: {
   nombre: string;
@@ -62,7 +63,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: true });
     }
 
-    const paymentId = body.data?.id;
+    const paymentId = sanitizeText(String(body.data?.id || ""), 64);
     if (!paymentId) {
       return NextResponse.json({ ok: true });
     }
@@ -83,7 +84,7 @@ export async function POST(request: NextRequest) {
     }
 
     const pago = await respuestaPago.json();
-    const pedidoId = pago.external_reference;
+    const pedidoId = sanitizeText(pago.external_reference, 64);
     const mpStatus = pago.status; // approved | pending | rejected
 
     if (!pedidoId) {
