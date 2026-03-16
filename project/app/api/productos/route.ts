@@ -15,7 +15,7 @@ export async function GET() {
       .order("nombre", { ascending: true });
 
     if (error) {
-      return NextResponse.json({ error: "Error al obtener productos." }, { status: 500 });
+    return NextResponse.json({ error: "Error al obtener productos." }, { status: 500 });
     }
 
     return NextResponse.json({ productos: data || [] });
