@@ -40,8 +40,8 @@ export interface HorarioBloqueado {
 export interface FormularioTurnoData {
   nombre: string;
   apellido: string;
-  telefono: string;
   email: string;
+  telefono: string;
   mascota: string;
   especie: EspecieMascota;
   motivo: string;
@@ -99,6 +99,7 @@ export interface Pedido {
   id: string;
   nombre: string;
   apellido: string;
+  email: string;
   telefono: string;
   items: ItemPedido[];
   total: number;
