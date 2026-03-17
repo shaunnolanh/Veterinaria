@@ -124,7 +124,7 @@
 }
 
 .dia-disponible {
-  @apply flex flex-col items-center justify-center w-10 h-10 rounded-full text-sm font-medium cursor-pointer hover:bg-[#6B2FA0]/20 hover:text-[#6B2FA0] transition-all duration-200;
+  @apply flex flex-col items-center justify-center w-10 h-10 rounded-full text-sm font-medium text-zinc-900 cursor-pointer hover:bg-[#6B2FA0]/20 hover:text-[#6B2FA0] transition-all duration-200;
 }
 
 .dia-seleccionado {
@@ -132,7 +132,7 @@
 }
 
 .dia-deshabilitado {
-  @apply flex flex-col items-center justify-center w-10 h-10 rounded-full text-sm font-medium text-zinc-300 cursor-not-allowed;
+  @apply flex flex-col items-center justify-center w-10 h-10 rounded-full text-sm font-medium text-zinc-400 cursor-not-allowed;
 }
 
 .dia-hoy {

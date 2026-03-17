@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
         failure: `${baseUrl}/tienda/fallo?pedido=${pedido.id}`,
         pending: `${baseUrl}/tienda/pendiente?pedido=${pedido.id}`,
       },
-      auto_return: "approved",
+      
       notification_url: `${baseUrl}/api/mp-webhook`,
       statement_descriptor: "PEON PETS",
     };
@@ -121,8 +121,9 @@ export async function POST(request: NextRequest) {
 
     const mpData = await mpRes.json();
     if (!mpRes.ok) {
-      return NextResponse.json({ error: "No se pudo crear la preferencia de pago." }, { status: 500 });
-    }
+     console.error("MP Error:", JSON.stringify(mpData));
+     return NextResponse.json({ error: mpData.message || "No se pudo crear la preferencia de pago." }, { status: 500 });
+   }
 
     return NextResponse.json({ init_point: mpData.init_point, preference_id: mpData.id });
   } catch (error) {
