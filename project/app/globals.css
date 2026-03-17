@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700;800;900&display=swap');
 
 @layer base {
   * {
@@ -16,87 +16,80 @@
   }
 
   body {
-    background-color: #1A1A2E;
-    color: #FFFFFF;
-    font-family: 'Inter', system-ui, sans-serif;
+    background-color: #ffffff;
+    color: #18181b;
+    font-family: 'Inter Tight', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
 
-  /* Scrollbar personalizada */
   ::-webkit-scrollbar {
-    width: 6px;
+    width: 8px;
   }
+
   ::-webkit-scrollbar-track {
-    background: #1A1A2E;
+    background: #f5f5f5;
   }
+
   ::-webkit-scrollbar-thumb {
-    background: #6B2FA0;
-    border-radius: 3px;
+    background: #6b2fa0;
+    border-radius: 9999px;
   }
+
   ::-webkit-scrollbar-thumb:hover {
-    background: #A8D400;
+    background: #a8d400;
   }
 }
 
 @layer components {
-  /* Botón primario verde lima */
   .btn-primario {
-    @apply bg-verde-lima text-oscuro font-semibold py-3 px-6 rounded-lg hover:opacity-90 active:scale-95 transition-all duration-200 inline-flex items-center gap-2;
+    @apply bg-[#6B2FA0] text-white font-medium px-6 py-3 rounded-[44px] hover:opacity-90 active:scale-95 transition-all duration-200 inline-flex items-center justify-center gap-2;
   }
 
-  /* Botón secundario púrpura */
   .btn-secundario {
-    @apply bg-purpura/80 text-white font-semibold py-3 px-6 rounded-lg hover:bg-purpura active:scale-95 transition-all duration-200 inline-flex items-center gap-2;
+    @apply bg-white text-zinc-900 font-medium px-6 py-3 rounded-[44px] outline outline-1 outline-zinc-900 hover:bg-zinc-50 active:scale-95 transition-all duration-200 inline-flex items-center justify-center gap-2;
   }
 
-  /* Botón outline */
   .btn-outline {
-    @apply border border-verde-lima/60 text-verde-lima font-semibold py-3 px-6 rounded-lg hover:bg-verde-lima hover:text-oscuro active:scale-95 transition-all duration-200 inline-flex items-center gap-2;
+    @apply text-[#6B2FA0] font-medium px-6 py-3 rounded-[44px] outline outline-1 outline-[#6B2FA0] hover:bg-[#6B2FA0]/10 active:scale-95 transition-all duration-200 inline-flex items-center justify-center gap-2;
   }
 
-  /* Tarjeta con fondo oscuro */
   .card {
-    @apply bg-oscuro-medio rounded-xl p-6 border border-white/10;
+    @apply bg-white rounded-3xl p-6 shadow-[0px_4px_12px_2px_rgba(0,0,0,0.06)];
   }
 
-  /* Badge de estado de turno */
   .badge-pendiente {
-    @apply bg-yellow-500/20 text-yellow-400 text-xs font-bold px-3 py-1 rounded-full;
+    @apply bg-yellow-500/20 text-yellow-700 text-xs font-bold px-3 py-1 rounded-full;
   }
+
   .badge-confirmado {
-    @apply bg-green-500/20 text-green-400 text-xs font-bold px-3 py-1 rounded-full;
+    @apply bg-[#A8D400]/20 text-[#6A8700] text-xs font-bold px-3 py-1 rounded-full;
   }
+
   .badge-cancelado {
-    @apply bg-red-500/20 text-red-400 text-xs font-bold px-3 py-1 rounded-full;
+    @apply bg-red-500/20 text-red-700 text-xs font-bold px-3 py-1 rounded-full;
   }
 
-  /* Input de formulario */
   .input-campo {
-    @apply w-full bg-oscuro border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-verde-lima focus:ring-1 focus:ring-verde-lima transition-all;
+    @apply w-full bg-white border border-zinc-300 rounded-2xl px-4 py-3 text-zinc-900 placeholder-zinc-500 focus:outline-none focus:border-[#6B2FA0] focus:ring-1 focus:ring-[#6B2FA0] transition-all;
   }
 
-  /* Select de formulario */
   .select-campo {
-    @apply w-full bg-oscuro border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-verde-lima focus:ring-1 focus:ring-verde-lima transition-all cursor-pointer;
+    @apply w-full bg-white border border-zinc-300 rounded-2xl px-4 py-3 text-zinc-900 focus:outline-none focus:border-[#6B2FA0] focus:ring-1 focus:ring-[#6B2FA0] transition-all cursor-pointer;
   }
 
-  /* Label de formulario */
   .label-campo {
-    @apply block text-sm font-medium text-white/70 mb-1;
+    @apply block text-sm font-medium text-zinc-700 mb-1;
   }
 
-  /* Sección genérica */
   .seccion {
     @apply py-16 px-4;
   }
 
-  /* Gradiente de texto — de verde lima a púrpura (más profesional) */
   .texto-gradiente {
-    @apply bg-gradient-to-r from-verde-lima to-purpura bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-[#6B2FA0] to-[#A8D400] bg-clip-text text-transparent;
   }
 }
 
-/* Animaciones personalizadas */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -112,39 +105,36 @@
   animation: fadeInUp 0.5s ease-out forwards;
 }
 
-/* Efecto glassmorphism */
 .glass {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(24, 24, 27, 0.08);
 }
 
-/* Estilo para el slot de turno disponible */
 .slot-disponible {
-  @apply border-2 border-white/20 rounded-xl py-2 px-3 text-sm font-medium text-white/80 hover:border-verde-lima hover:text-verde-lima hover:bg-verde-lima/10 cursor-pointer transition-all duration-200 text-center;
+  @apply border-2 border-zinc-300 rounded-2xl py-2 px-3 text-sm font-medium text-zinc-700 hover:border-[#6B2FA0] hover:text-[#6B2FA0] hover:bg-[#6B2FA0]/10 cursor-pointer transition-all duration-200 text-center;
 }
 
 .slot-seleccionado {
-  @apply border-2 border-verde-lima rounded-xl py-2 px-3 text-sm font-bold text-oscuro bg-verde-lima cursor-pointer transition-all duration-200 text-center;
+  @apply border-2 border-[#6B2FA0] rounded-2xl py-2 px-3 text-sm font-bold text-white bg-[#6B2FA0] cursor-pointer transition-all duration-200 text-center;
 }
 
 .slot-ocupado {
-  @apply border-2 border-white/10 rounded-xl py-2 px-3 text-sm font-medium text-white/30 bg-white/5 cursor-not-allowed transition-all duration-200 text-center line-through;
+  @apply border-2 border-zinc-200 rounded-2xl py-2 px-3 text-sm font-medium text-zinc-400 bg-zinc-100 cursor-not-allowed transition-all duration-200 text-center line-through;
 }
 
-/* Día del calendario */
 .dia-disponible {
-  @apply flex flex-col items-center justify-center w-10 h-10 rounded-full text-sm font-medium cursor-pointer hover:bg-verde-lima/20 hover:text-verde-lima transition-all duration-200;
+  @apply flex flex-col items-center justify-center w-10 h-10 rounded-full text-sm font-medium cursor-pointer hover:bg-[#6B2FA0]/20 hover:text-[#6B2FA0] transition-all duration-200;
 }
 
 .dia-seleccionado {
-  @apply flex flex-col items-center justify-center w-10 h-10 rounded-full text-sm font-bold bg-verde-lima text-oscuro transition-all duration-200;
+  @apply flex flex-col items-center justify-center w-10 h-10 rounded-full text-sm font-bold bg-[#6B2FA0] text-white transition-all duration-200;
 }
 
 .dia-deshabilitado {
-  @apply flex flex-col items-center justify-center w-10 h-10 rounded-full text-sm font-medium text-white/20 cursor-not-allowed;
+  @apply flex flex-col items-center justify-center w-10 h-10 rounded-full text-sm font-medium text-zinc-300 cursor-not-allowed;
 }
 
 .dia-hoy {
-  @apply ring-2 ring-cian;
+  @apply ring-2 ring-[#A8D400];
 }

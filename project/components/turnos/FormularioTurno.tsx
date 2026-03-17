@@ -80,7 +80,7 @@ export default function FormularioTurno({ fecha, hora, especialidad, onExito, on
 
   return (
     <form onSubmit={enviarTurno} className="card space-y-5">
-      <h2 className="font-bold text-white text-lg mb-2">3. Tus datos</h2>
+      <h2 className="font-bold text-zinc-900 text-lg mb-2">3. Tus datos</h2>
 
       {/* Nombre y Apellido */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -122,7 +122,7 @@ export default function FormularioTurno({ fecha, hora, especialidad, onExito, on
           required
           autoComplete="tel"
         />
-        <p className="text-white/40 text-xs mt-1">
+        <p className="text-zinc-500 text-xs mt-1">
           Lo usamos solo para confirmar tu turno.
         </p>
       </div>
@@ -137,7 +137,7 @@ export default function FormularioTurno({ fecha, hora, especialidad, onExito, on
           onChange={(e) => actualizar("email", e.target.value)}
           autoComplete="email"
         />
-        <p className="text-white/40 text-xs mt-1">
+        <p className="text-zinc-500 text-xs mt-1">
           Opcional. Te mandamos la confirmación por email.
         </p>
       </div>

@@ -178,17 +178,17 @@ export default function CalendarioTurnos() {
     return (
       <div className="card text-center py-12">
         <div className="text-6xl mb-4">🎉</div>
-        <h2 className="text-2xl font-black text-verde-lima mb-2">¡Turno solicitado!</h2>
-        <p className="text-white/70 mb-6">
+        <h2 className="text-2xl font-black text-[#A8D400] mb-2">¡Turno solicitado!</h2>
+        <p className="text-zinc-700 mb-6">
           Te vamos a confirmar el turno a la brevedad por email.
         </p>
-        <div className="bg-oscuro border border-verde-lima/30 rounded-xl p-4 mb-6 inline-block">
-          <p className="text-white/60 text-sm">Tu turno solicitado</p>
-          <p className="text-verde-lima font-bold text-lg mt-1">
+        <div className="bg-white border border-[#6B2FA0]/30 rounded-xl p-4 mb-6 inline-block">
+          <p className="text-zinc-600 text-sm">Tu turno solicitado</p>
+          <p className="text-[#A8D400] font-bold text-lg mt-1">
             {fechaFinal} a las {horaSeleccionada}
           </p>
           {especialidadSeleccionada && especialidadSeleccionada !== "clinica" && (
-            <p className="text-white/50 text-sm mt-1">
+            <p className="text-zinc-500 text-sm mt-1">
               {ESPECIALIDAD_LABELS[especialidadSeleccionada].icono}{" "}
               {ESPECIALIDAD_LABELS[especialidadSeleccionada].label}
             </p>
@@ -215,20 +215,20 @@ export default function CalendarioTurnos() {
   if (paso === "datos" && fechaFinal && horaSeleccionada && especialidadSeleccionada) {
     return (
       <div>
-        <div className="card mb-6 flex items-center justify-between">
+        <div className="card border border-zinc-200 mb-6 flex items-center justify-between">
           <div>
-            <p className="text-white/60 text-sm">Turno para</p>
-            <p className="font-bold text-verde-lima">
+            <p className="text-zinc-600 text-sm">Turno para</p>
+            <p className="font-bold text-[#A8D400]">
               {fechaFinal} a las {horaSeleccionada}
             </p>
-            <p className="text-white/50 text-xs mt-0.5">
+            <p className="text-zinc-500 text-xs mt-0.5">
               {ESPECIALIDAD_LABELS[especialidadSeleccionada].icono}{" "}
               {ESPECIALIDAD_LABELS[especialidadSeleccionada].label}
             </p>
           </div>
           <button
             onClick={() => { setPaso("hora"); setHoraSeleccionada(null); }}
-            className="text-white/40 hover:text-white text-sm"
+            className="text-zinc-500 hover:text-zinc-900 text-sm"
           >
             Cambiar
           </button>
@@ -249,13 +249,13 @@ export default function CalendarioTurnos() {
     <div className="space-y-6">
 
       {/* PASO 1: Tipo de consulta */}
-      <div className="card">
+      <div className="card border border-zinc-200">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-bold text-white">
+          <h2 className="font-bold text-zinc-900">
             {paso === "especialidad" ? "1. ¿Qué tipo de consulta necesitás?" : "✅ Tipo de consulta"}
           </h2>
           {especialidadSeleccionada && paso !== "especialidad" && (
-            <button onClick={resetearTodo} className="text-verde-lima text-sm font-medium hover:underline">
+            <button onClick={resetearTodo} className="text-[#A8D400] text-sm font-medium hover:underline">
               Cambiar
             </button>
           )}
@@ -267,14 +267,14 @@ export default function CalendarioTurnos() {
               <button
                 key={esp.value}
                 onClick={() => { setEspecialidadSeleccionada(esp.value); setPaso("fecha"); }}
-                className="flex items-start gap-3 p-4 rounded-xl border-2 border-white/20 hover:border-verde-lima hover:bg-verde-lima/10 text-left transition-all group"
+                className="flex items-start gap-3 p-4 rounded-xl border-2 border-zinc-300 hover:border-[#6B2FA0] hover:bg-[#6B2FA0]/10 text-left transition-all group"
               >
                 <span className="text-2xl mt-0.5">{esp.icono}</span>
                 <div>
-                  <p className="font-bold text-white group-hover:text-verde-lima transition-colors text-sm">
+                  <p className="font-bold text-zinc-900 group-hover:text-[#A8D400] transition-colors text-sm">
                     {esp.label}
                   </p>
-                  <p className="text-white/40 text-xs mt-0.5">{esp.desc}</p>
+                  <p className="text-zinc-500 text-xs mt-0.5">{esp.desc}</p>
                 </div>
               </button>
             ))}
@@ -282,7 +282,7 @@ export default function CalendarioTurnos() {
         ) : (
           <div className="flex items-center gap-3">
             <span className="text-xl">{ESPECIALIDAD_LABELS[especialidadSeleccionada!].icono}</span>
-            <p className="font-bold text-verde-lima text-sm">
+            <p className="font-bold text-[#A8D400] text-sm">
               {ESPECIALIDAD_LABELS[especialidadSeleccionada!].label}
             </p>
           </div>
@@ -291,9 +291,9 @@ export default function CalendarioTurnos() {
 
       {/* PASO 2: Fecha */}
       {(paso === "fecha" || paso === "hora" || paso === "datos") && especialidadSeleccionada && (
-        <div className="card">
+        <div className="card border border-zinc-200">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-white">
+            <h2 className="font-bold text-zinc-900">
               {paso === "fecha" ? "2. Elegí el día" : "✅ Día elegido"}
             </h2>
             {(fechaSeleccionada || fechaEspecialistaSeleccionada) && paso !== "fecha" && (
@@ -305,7 +305,7 @@ export default function CalendarioTurnos() {
                   setFechaEspecialistaSeleccionada(null);
                   setSlots([]);
                 }}
-                className="text-verde-lima text-sm font-medium hover:underline"
+                className="text-[#A8D400] text-sm font-medium hover:underline"
               >
                 Cambiar
               </button>
@@ -315,13 +315,13 @@ export default function CalendarioTurnos() {
           {especialidadSeleccionada === "clinica" ? (
             <>
               <div className="flex items-center justify-between mb-4">
-                <button onClick={mesAnterior} className="p-2 rounded-lg hover:bg-white/10 transition-colors">←</button>
-                <p className="font-bold text-white">{nombreMes(mesActual)} {anioActual}</p>
-                <button onClick={mesSiguiente} className="p-2 rounded-lg hover:bg-white/10 transition-colors">→</button>
+                <button onClick={mesAnterior} className="p-2 rounded-lg hover:bg-zinc-100 transition-colors">←</button>
+                <p className="font-bold text-zinc-900">{nombreMes(mesActual)} {anioActual}</p>
+                <button onClick={mesSiguiente} className="p-2 rounded-lg hover:bg-zinc-100 transition-colors">→</button>
               </div>
               <div className="grid grid-cols-7 mb-2">
                 {["Lu", "Ma", "Mi", "Ju", "Vi", "Sá", "Do"].map((d) => (
-                  <div key={d} className="text-center text-xs text-white/40 font-medium py-1">{d}</div>
+                  <div key={d} className="text-center text-xs text-zinc-500 font-medium py-1">{d}</div>
                 ))}
               </div>
               <div className="grid grid-cols-7 gap-1">
@@ -346,23 +346,23 @@ export default function CalendarioTurnos() {
                   );
                 })}
               </div>
-              <p className="text-white/40 text-xs mt-4 text-center">
+              <p className="text-zinc-500 text-xs mt-4 text-center">
                 Solo se pueden sacar turnos de Lunes a Viernes
               </p>
             </>
           ) : (
             <>
               {cargandoFechas ? (
-                <p className="text-white/40 text-sm text-center py-4">Cargando fechas disponibles...</p>
+                <p className="text-zinc-500 text-sm text-center py-4">Cargando fechas disponibles...</p>
               ) : fechasEspecialista.length === 0 ? (
                 <div className="text-center py-6">
                   <p className="text-3xl mb-2">📅</p>
-                  <p className="text-white/60 text-sm">
+                  <p className="text-zinc-600 text-sm">
                     Por el momento no hay fechas disponibles para esta especialidad.
                   </p>
-                  <p className="text-white/40 text-xs mt-1">
+                  <p className="text-zinc-500 text-xs mt-1">
                     Consultanos:{" "}
-                    <a href="https://wa.me/5493548156327" className="text-verde-lima hover:underline">
+                    <a href="https://wa.me/5493548156327" className="text-[#A8D400] hover:underline">
                       WhatsApp
                     </a>
                   </p>
@@ -381,14 +381,14 @@ export default function CalendarioTurnos() {
                         }}
                         className={`flex flex-col p-4 rounded-xl border-2 text-left transition-all ${
                           seleccionado
-                            ? "border-verde-lima bg-verde-lima/10"
-                            : "border-white/20 hover:border-verde-lima/50"
+                            ? "border-[#6B2FA0] bg-[#6B2FA0]/10"
+                            : "border-zinc-300 hover:border-[#6B2FA0]/50"
                         }`}
                       >
-                        <p className={`font-bold ${seleccionado ? "text-verde-lima" : "text-white"}`}>
+                        <p className={`font-bold ${seleccionado ? "text-[#A8D400]" : "text-zinc-900"}`}>
                           {f.fecha}
                         </p>
-                        <p className="text-white/50 text-xs mt-0.5">
+                        <p className="text-zinc-500 text-xs mt-0.5">
                           {f.hora_inicio} – {f.hora_fin} · cada {f.intervalo_minutos}min
                         </p>
                       </button>
@@ -403,19 +403,19 @@ export default function CalendarioTurnos() {
 
       {/* PASO 3: Horarios */}
       {(paso === "hora" || paso === "datos") && fechaFinal && (
-        <div className="card">
-          <h2 className="font-bold text-white mb-4">3. Elegí el horario</h2>
-          <p className="text-white/60 text-sm mb-4">
+        <div className="card border border-zinc-200">
+          <h2 className="font-bold text-zinc-900 mb-4">3. Elegí el horario</h2>
+          <p className="text-zinc-600 text-sm mb-4">
             Día seleccionado:{" "}
-            <span className="text-verde-lima font-semibold">{fechaFinal}</span>
+            <span className="text-[#A8D400] font-semibold">{fechaFinal}</span>
           </p>
           {cargandoSlots ? (
-            <div className="text-center py-8 text-white/50">Cargando horarios...</div>
+            <div className="text-center py-8 text-zinc-500">Cargando horarios...</div>
           ) : (
             <div className="space-y-4">
               {slotsMañana.length > 0 && (
                 <div>
-                  <p className="text-xs text-white/50 font-medium uppercase tracking-wider mb-2">
+                  <p className="text-xs text-zinc-500 font-medium uppercase tracking-wider mb-2">
                     ☀️ Mañana
                   </p>
                   <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
@@ -434,7 +434,7 @@ export default function CalendarioTurnos() {
               )}
               {slotsTarde.length > 0 && (
                 <div>
-                  <p className="text-xs text-white/50 font-medium uppercase tracking-wider mb-2">
+                  <p className="text-xs text-zinc-500 font-medium uppercase tracking-wider mb-2">
                     🌙 Tarde
                   </p>
                   <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
@@ -452,7 +452,7 @@ export default function CalendarioTurnos() {
                 </div>
               )}
               {slots.length === 0 && (
-                <p className="text-center text-white/40 py-4 text-sm">
+                <p className="text-center text-zinc-500 py-4 text-sm">
                   No hay horarios disponibles para este día.
                 </p>
               )}
