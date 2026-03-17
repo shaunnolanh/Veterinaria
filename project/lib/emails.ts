@@ -139,6 +139,6 @@ export async function emailPedidoRetirado(p: {
   await enviar(
     p.email,
     "🎉 Pedido retirado — Peón Pet's",
-    `Hola ${p.nombre}, ¡gracias por tu compra! Tu pedido fue retirado exitosamente.`
+    `Hola ${p.nombre}, ¡Gracias por tu compra! Tu pedido fue retirado exitosamente`
   );
 }
