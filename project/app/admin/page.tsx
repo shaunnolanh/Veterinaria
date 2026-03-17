@@ -45,10 +45,10 @@ export default async function AdminDashboard() {
 
   return (
     <AdminShell>
-      <div className="p-6 max-w-5xl">
+      <div className="p-8 max-w-[1280px]">
         <div className="mb-6">
-          <h1 className="text-2xl font-black text-gray-900">Dashboard</h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <h1 className="text-3xl font-black text-zinc-900">Dashboard</h1>
+          <p className="text-zinc-500 text-sm mt-1">
             {new Date().toLocaleDateString("es-AR", {
               weekday: "long",
               year: "numeric",
@@ -60,9 +60,9 @@ export default async function AdminDashboard() {
 
         {/* Stats del día */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <StatCard titulo="Turnos hoy" valor={turnosHoy.length} color="blue" icono="📅" />
-          <StatCard titulo="Pendientes" valor={pendientesHoy} color="yellow" icono="⏳" />
-          <StatCard titulo="Confirmados" valor={confirmadosHoy} color="green" icono="✅" />
+          <StatCard titulo="Turnos hoy" valor={turnosHoy.length} color="lime" icono="📅" />
+          <StatCard titulo="Pendientes" valor={pendientesHoy} color="purple" icono="⏳" />
+          <StatCard titulo="Confirmados" valor={confirmadosHoy} color="neutral" icono="✅" />
           <StatCard
             titulo="Pedidos pendientes"
             valor={pedidosPendientes.length}
@@ -72,7 +72,7 @@ export default async function AdminDashboard() {
         </div>
 
         {/* Turnos por especialidad */}
-        <h2 className="text-base font-bold text-gray-700 mb-3">Turnos hoy por especialidad</h2>
+        <h2 className="text-base font-bold text-zinc-700 mb-3">Turnos hoy por especialidad</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
           {ESPECIALIDADES.map(({ key, href }) => {
             const cantidad = turnosHoy.filter((t) => t.especialidad === key).length;
@@ -94,7 +94,7 @@ export default async function AdminDashboard() {
         </div>
 
         {/* Accesos rápidos */}
-        <h2 className="text-base font-bold text-gray-700 mb-3">Accesos rápidos</h2>
+        <h2 className="text-base font-bold text-zinc-700 mb-3">Accesos rápidos</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           <QuickLink href="/admin/especialidades" icono="📅" label="Cargar fechas de especialistas" />
           <QuickLink
@@ -131,14 +131,13 @@ function StatCard({
 }: {
   titulo: string;
   valor: number;
-  color: "blue" | "yellow" | "green" | "purple";
+  color: "lime" | "purple" | "neutral";
   icono: string;
 }) {
   const colores = {
-    blue: "text-blue-600",
-    yellow: "text-yellow-500",
-    green: "text-green-600",
+    lime: "text-[#A8D400]",
     purple: "text-purpura",
+    neutral: "text-zinc-600",
   };
   return (
     <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
