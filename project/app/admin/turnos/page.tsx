@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import { Turno, EstadoTurno } from "@/types";
+import AdminShell from "@/components/admin/AdminShell";
 
 const ESTADO_LABELS: Record<EstadoTurno, { label: string; clase: string }> = {
   pendiente: { label: "Pendiente", clase: "badge-pendiente" },
@@ -78,55 +79,33 @@ export default function AdminTurnosPage() {
     setGuardando(false);
   }
 
-  async function cerrarSesion() {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/admin");
-  }
-
   const turnosPendientes = turnos.filter((t) => t.estado === "pendiente").length;
 
   return (
-    <div className="min-h-screen">
-      {/* Header del admin */}
-      <header className="bg-oscuro-medio border-b border-white/10 px-4 py-4">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-purpura flex items-center justify-center">
-              <span className="text-verde-lima font-black text-xs">PP</span>
-            </div>
-            <div>
-              <p className="font-bold text-white text-sm">Panel Admin</p>
-              <p className="text-white/40 text-xs">Peón Pet's</p>
-            </div>
-          </div>
-          <button
-            onClick={cerrarSesion}
-            className="text-white/50 hover:text-white text-sm transition-colors"
-          >
-            Salir →
-          </button>
+    <AdminShell>
+      <div className="max-w-[1280px] px-6 py-8">
+        <div className="mb-6">
+          <h1 className="text-2xl font-black text-zinc-900">📅 Turnos</h1>
+          <p className="text-zinc-500 text-sm mt-1">Gestión de turnos de todas las especialidades</p>
         </div>
-      </header>
 
-      <div className="max-w-5xl mx-auto px-4 py-6">
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-3 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
           <div className="card text-center py-4">
-            <p className="text-2xl font-black text-yellow-400">{turnosPendientes}</p>
-            <p className="text-white/50 text-xs mt-1">Pendientes</p>
+            <p className="text-2xl font-black text-[#A8D400]">{turnosPendientes}</p>
+            <p className="text-zinc-500 text-xs mt-1">Pendientes</p>
           </div>
           <div className="card text-center py-4">
-            <p className="text-2xl font-black text-green-400">
+            <p className="text-2xl font-black text-[#6B2FA0]">
               {turnos.filter((t) => t.estado === "confirmado").length}
             </p>
-            <p className="text-white/50 text-xs mt-1">Confirmados</p>
+            <p className="text-zinc-500 text-xs mt-1">Confirmados</p>
           </div>
           <div className="card text-center py-4">
-            <p className="text-2xl font-black text-white/60">
+            <p className="text-2xl font-black text-zinc-500">
               {turnos.filter((t) => t.estado === "cancelado").length}
             </p>
-            <p className="text-white/50 text-xs mt-1">Cancelados</p>
+            <p className="text-zinc-500 text-xs mt-1">Cancelados</p>
           </div>
         </div>
 
@@ -140,7 +119,7 @@ export default function AdminTurnosPage() {
                 className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
                   filtro === f
                     ? "bg-purpura text-white"
-                    : "bg-white/10 text-white/60 hover:bg-white/20"
+                    : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
                 }`}
               >
                 {f === "todos"
@@ -153,18 +132,18 @@ export default function AdminTurnosPage() {
 
         {/* Lista de turnos */}
         {cargando ? (
-          <div className="text-center py-12 text-white/40">Cargando turnos...</div>
+          <div className="text-center py-12 text-zinc-400">Cargando turnos...</div>
         ) : turnos.length === 0 ? (
           <div className="card text-center py-12">
             <p className="text-4xl mb-3">📅</p>
-            <p className="text-white/60">No hay turnos {filtro !== "todos" ? filtro + "s" : ""}.</p>
+            <p className="text-zinc-500">No hay turnos {filtro !== "todos" ? filtro + "s" : ""}.</p>
           </div>
         ) : (
           <div className="space-y-3">
             {turnos.map((turno) => (
               <div
                 key={turno.id}
-                className="card hover:border-white/20 transition-all duration-200"
+                className="card border border-zinc-100 hover:border-[#6B2FA0]/30 transition-all duration-200"
               >
                 <div className="flex items-start gap-4">
                   {/* Icono mascota */}
@@ -175,7 +154,7 @@ export default function AdminTurnosPage() {
                   {/* Datos principales */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-bold text-white">
+                      <p className="font-bold text-zinc-900">
                         {turno.nombre} {turno.apellido}
                       </p>
                       <span className={ESTADO_LABELS[turno.estado].clase}>
@@ -183,19 +162,19 @@ export default function AdminTurnosPage() {
                       </span>
                     </div>
 
-                    <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-sm text-white/60">
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-sm text-zinc-500">
                       <span>📅 {turno.fecha} a las {turno.hora}</span>
                       <span>🐾 {turno.mascota} ({turno.especie})</span>
                       <span>📱 {turno.telefono}</span>
                     </div>
 
                     {turno.motivo && (
-                      <p className="text-white/50 text-sm mt-1 italic">
+                      <p className="text-zinc-500 text-sm mt-1 italic">
                         "{turno.motivo}"
                       </p>
                     )}
                     {turno.notas_admin && (
-                      <p className="text-verde-lima/70 text-sm mt-1">
+                      <p className="text-[#6B2FA0] text-sm mt-1">
                         📝 {turno.notas_admin}
                       </p>
                     )}
@@ -207,7 +186,7 @@ export default function AdminTurnosPage() {
                       setTurnoActivo(turno);
                       setNotasAdmin(turno.notas_admin || "");
                     }}
-                    className="text-white/40 hover:text-white text-sm font-medium transition-colors shrink-0"
+                    className="text-zinc-500 hover:text-[#6B2FA0] text-sm font-semibold transition-colors shrink-0"
                   >
                     Gestionar
                   </button>
@@ -220,45 +199,45 @@ export default function AdminTurnosPage() {
 
       {/* Modal de gestión de turno */}
       {turnoActivo && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4">
-          <div className="bg-oscuro-medio border border-white/20 rounded-2xl w-full max-w-md p-6 space-y-4">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4">
+          <div className="bg-white border border-zinc-200 rounded-3xl shadow-[0px_4px_12px_2px_rgba(0,0,0,0.06)] w-full max-w-md p-6 space-y-4">
             {/* Header modal */}
             <div className="flex items-center justify-between">
-              <h3 className="font-bold text-white">Gestionar turno</h3>
+              <h3 className="font-bold text-zinc-900">Gestionar turno</h3>
               <button
                 onClick={() => setTurnoActivo(null)}
-                className="text-white/40 hover:text-white text-xl leading-none"
+                className="text-zinc-400 hover:text-zinc-800 text-xl leading-none"
               >
                 ×
               </button>
             </div>
 
             {/* Info del turno */}
-            <div className="bg-oscuro rounded-xl p-4 space-y-2 text-sm">
-              <p className="text-white">
-                <span className="text-white/50">Dueño: </span>
+            <div className="bg-zinc-50 rounded-2xl p-4 space-y-2 text-sm">
+              <p className="text-zinc-900">
+                <span className="text-zinc-500">Dueño: </span>
                 {turnoActivo.nombre} {turnoActivo.apellido}
               </p>
-              <p className="text-white">
-                <span className="text-white/50">Mascota: </span>
+              <p className="text-zinc-900">
+                <span className="text-zinc-500">Mascota: </span>
                 {ESPECIE_ICONOS[turnoActivo.especie]} {turnoActivo.mascota}
               </p>
-              <p className="text-verde-lima font-bold">
+              <p className="text-[#6B2FA0] font-bold">
                 📅 {turnoActivo.fecha} a las {turnoActivo.hora}
               </p>
-              <p className="text-white">
-                <span className="text-white/50">Teléfono: </span>
+              <p className="text-zinc-900">
+                <span className="text-zinc-500">Teléfono: </span>
                 <a
                   href={`https://wa.me/54${turnoActivo.telefono.replace(/\D/g, "")}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-green-400 hover:underline"
+                  className="text-[#6B2FA0] hover:underline"
                 >
                   {turnoActivo.telefono}
                 </a>
               </p>
               {turnoActivo.motivo && (
-                <p className="text-white/60 italic">"{turnoActivo.motivo}"</p>
+                <p className="text-zinc-500 italic">"{turnoActivo.motivo}"</p>
               )}
             </div>
 
@@ -279,14 +258,14 @@ export default function AdminTurnosPage() {
               <button
                 onClick={() => cambiarEstado(turnoActivo.id, "confirmado")}
                 disabled={guardando || turnoActivo.estado === "confirmado"}
-                className="bg-green-600 hover:bg-green-500 disabled:opacity-40 text-white font-bold py-3 rounded-xl transition-all text-sm"
+                className="bg-[#6B2FA0] hover:bg-[#5b2788] disabled:opacity-40 text-white font-bold py-3 rounded-[44px] transition-all text-sm"
               >
                 ✅ Confirmar
               </button>
               <button
                 onClick={() => cambiarEstado(turnoActivo.id, "cancelado")}
                 disabled={guardando || turnoActivo.estado === "cancelado"}
-                className="bg-red-700 hover:bg-red-600 disabled:opacity-40 text-white font-bold py-3 rounded-xl transition-all text-sm"
+                className="bg-zinc-200 hover:bg-zinc-300 disabled:opacity-40 text-zinc-800 font-bold py-3 rounded-[44px] transition-all text-sm"
               >
                 ✗ Cancelar
               </button>
@@ -295,13 +274,13 @@ export default function AdminTurnosPage() {
             <button
               onClick={() => cambiarEstado(turnoActivo.id, "pendiente")}
               disabled={guardando || turnoActivo.estado === "pendiente"}
-              className="w-full bg-white/10 hover:bg-white/20 disabled:opacity-40 text-white font-medium py-2 rounded-xl transition-all text-sm"
+              className="w-full border border-zinc-300 hover:border-[#6B2FA0] disabled:opacity-40 text-zinc-700 font-medium py-2 rounded-[44px] transition-all text-sm"
             >
               Marcar como pendiente
             </button>
           </div>
         </div>
       )}
-    </div>
+    </AdminShell>
   );
 }

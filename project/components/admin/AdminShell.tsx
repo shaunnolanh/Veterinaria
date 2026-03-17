@@ -29,24 +29,24 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-[#f5f5f5] flex">
       {/* Sidebar */}
-      <aside className="w-60 bg-white border-r border-gray-200 flex flex-col fixed inset-y-0 left-0 z-10">
+      <aside className="w-64 bg-white border-r border-zinc-200 flex flex-col fixed inset-y-0 left-0 z-10">
         {/* Logo */}
-        <div className="px-5 py-5 border-b border-gray-100">
+        <div className="px-5 py-5 border-b border-zinc-100">
           <Link href="/admin" className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-purpura flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-purpura flex items-center justify-center shrink-0 shadow-[0px_4px_12px_2px_rgba(0,0,0,0.06)]">
               <span className="text-verde-lima font-black text-xs">PP</span>
             </div>
             <div>
-              <p className="font-black text-gray-900 text-sm leading-tight">Panel Admin</p>
-              <p className="text-gray-400 text-xs">Peón Pet's</p>
+              <p className="font-black text-zinc-900 text-sm leading-tight">Panel Admin</p>
+              <p className="text-zinc-400 text-xs">Peón Pet's</p>
             </div>
           </Link>
         </div>
 
         {/* Navegación */}
-        <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           {NAV_ITEMS.map((item) => {
             const activo = esActivo(item.href, item.exacto);
             return (
@@ -56,7 +56,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                   activo
                     ? "bg-purpura/10 text-purpura font-semibold"
-                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                    : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
                 }`}
               >
                 <span className="text-base">{item.icono}</span>
@@ -78,7 +78,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
       </aside>
 
       {/* Contenido principal */}
-      <main className="flex-1 ml-60 min-h-screen">
+      <main className="flex-1 ml-64 min-h-screen">
         {children}
       </main>
     </div>

@@ -9,17 +9,17 @@ export const metadata: Metadata = {
 
 export default function TurnosPage() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-white">
       {/* Header de la página */}
-      <div className="bg-oscuro-medio border-b border-white/10 py-10 px-4">
-        <div className="max-w-3xl mx-auto text-center">
-          <span className="text-verde-lima text-sm font-bold uppercase tracking-widest">
+      <div className="bg-neutral-100 border-b border-zinc-200 py-14 px-6 lg:px-20">
+        <div className="max-w-[1280px] mx-auto text-center">
+          <span className="text-[#6B2FA0] text-sm font-semibold uppercase tracking-[0.2em]">
             Sistema de turnos
           </span>
-          <h1 className="text-3xl sm:text-4xl font-black mt-2 mb-3">
-            Sacá tu <span className="texto-gradiente">Turno</span>
+          <h1 className="text-3xl sm:text-5xl font-medium text-zinc-900 mt-2 mb-3">
+            Sacá tu <span className="text-[#A8D400]">Turno</span>
           </h1>
-          <p className="text-white/60 max-w-md mx-auto">
+          <p className="text-zinc-600 max-w-md mx-auto">
             Elegí el día y horario que mejor te quede. Te confirmamos el turno a la
             brevedad.
           </p>
@@ -27,7 +27,7 @@ export default function TurnosPage() {
       </div>
 
       {/* Calendario y formulario */}
-      <div className="max-w-3xl mx-auto px-4 py-10">
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-20 py-10">
         <CalendarioTurnos />
       </div>
     </div>

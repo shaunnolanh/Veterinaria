@@ -15,15 +15,15 @@ export default function HomePage() {
       <ParallaxScene />
       <ServiciosSection />
 
-      <section className="px-4 py-16 bg-oscuro-medio border-y border-white/10">
-        <div className="max-w-6xl mx-auto text-center">
-          <p className="text-verde-lima text-sm font-bold uppercase tracking-widest">Peón Pet&apos;s</p>
-          <h2 className="text-3xl md:text-4xl font-black text-white mt-2">Nuestra Tienda Online</h2>
-          <p className="text-white/70 mt-3 max-w-2xl mx-auto">
+      <section className="px-6 lg:px-20 py-20 bg-[#6B2FA0]">
+        <div className="max-w-[1280px] mx-auto text-center">
+          <p className="text-[#A8D400] text-sm font-semibold uppercase tracking-[0.2em]">Peón Pet&apos;s</p>
+          <h2 className="text-3xl md:text-5xl font-semibold text-white mt-3">Nuestra Tienda Online</h2>
+          <p className="text-white/85 mt-4 max-w-2xl mx-auto text-lg">
             Alimentos y accesorios para tu mascota, con retiro en La Falda
           </p>
-          <div className="mt-7 flex justify-center">
-            <Link href="/tienda" className="btn-primario">
+          <div className="mt-8 flex justify-center">
+            <Link href="/tienda" className="btn-secundario">
               Ir a la tienda
             </Link>
           </div>
