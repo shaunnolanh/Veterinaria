@@ -35,6 +35,12 @@ export default function TiendaPage() {
   const [carritoAbierto, setCarritoAbierto] = useState(false);
   const [procesando, setProcesando] = useState(false);
   const [errorCheckout, setErrorCheckout] = useState<string | null>(null);
+  const [datosCliente, setDatosCliente] = useState({
+    nombre: "",
+    apellido: "",
+    email: "",
+    telefono: "",
+  });
 
   useEffect(() => {
     fetch("/api/productos")
@@ -87,6 +93,13 @@ export default function TiendaPage() {
 
   async function pagarConMercadoPago() {
     if (carrito.length === 0) return;
+
+    const { nombre, apellido, email, telefono } = datosCliente;
+    if (!nombre.trim() || !apellido.trim() || !email.trim() || !telefono.trim()) {
+      setErrorCheckout("Completá nombre, apellido, email y teléfono para continuar.");
+      return;
+    }
+
     setErrorCheckout(null);
     setProcesando(true);
 
@@ -99,6 +112,12 @@ export default function TiendaPage() {
             producto_id: item.producto.id,
             cantidad: item.cantidad,
           })),
+          cliente: {
+            nombre,
+            apellido,
+            email,
+            telefono,
+          },
         }),
       });
 
@@ -247,13 +266,50 @@ export default function TiendaPage() {
               <span>Total</span>
               <span className="text-[#A8D400]">${total.toLocaleString("es-AR")}</span>
             </div>
+            <div className="rounded-3xl bg-[#6B2FA0]/5 border border-[#6B2FA0]/20 p-3 space-y-2">
+              <p className="text-sm font-semibold text-[#6B2FA0]">Datos para el pedido</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <input
+                  value={datosCliente.nombre}
+                  onChange={(event) => setDatosCliente((prev) => ({ ...prev, nombre: event.target.value }))}
+                  className="w-full rounded-2xl border border-zinc-200 px-3 py-2 text-sm text-zinc-900 outline-none focus:ring-2 focus:ring-[#6B2FA0]/30"
+                  placeholder="Nombre *"
+                  type="text"
+                  required
+                />
+                <input
+                  value={datosCliente.apellido}
+                  onChange={(event) => setDatosCliente((prev) => ({ ...prev, apellido: event.target.value }))}
+                  className="w-full rounded-2xl border border-zinc-200 px-3 py-2 text-sm text-zinc-900 outline-none focus:ring-2 focus:ring-[#6B2FA0]/30"
+                  placeholder="Apellido *"
+                  type="text"
+                  required
+                />
+              </div>
+              <input
+                value={datosCliente.email}
+                onChange={(event) => setDatosCliente((prev) => ({ ...prev, email: event.target.value }))}
+                className="w-full rounded-2xl border border-zinc-200 px-3 py-2 text-sm text-zinc-900 outline-none focus:ring-2 focus:ring-[#6B2FA0]/30"
+                placeholder="Email *"
+                type="email"
+                required
+              />
+              <input
+                value={datosCliente.telefono}
+                onChange={(event) => setDatosCliente((prev) => ({ ...prev, telefono: event.target.value }))}
+                className="w-full rounded-2xl border border-zinc-200 px-3 py-2 text-sm text-zinc-900 outline-none focus:ring-2 focus:ring-[#6B2FA0]/30"
+                placeholder="Teléfono *"
+                type="tel"
+                required
+              />
+            </div>
             {errorCheckout && <p className="text-red-400 text-xs">{errorCheckout}</p>}
             <button
               onClick={pagarConMercadoPago}
               disabled={carrito.length === 0 || procesando}
               className="w-full btn-primario justify-center disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {procesando ? "Redirigiendo..." : "Pagar con MercadoPago"}
+              {procesando ? "Redirigiendo..." : "Continuar al pago"}
             </button>
           </div>
         </div>

@@ -104,6 +104,19 @@ export async function emailPedidoRecibido(p: {
   );
 }
 
+
+export async function emailPedidoConfirmado(p: {
+  email?: string | null;
+  nombre: string;
+}) {
+  if (!p.email) { console.warn("[email] Pedido sin email, omitiendo."); return; }
+  await enviar(
+    p.email,
+    "✅ Pedido confirmado — Peón Pet's",
+    `Hola ${p.nombre}, tu pedido fue recibido y confirmado.\n\nTe avisamos cuando esté listo para retirar en Rivadavia 36, La Falda.`
+  );
+}
+
 export async function emailPedidoListo(p: {
   email?: string | null;
   nombre: string;
@@ -112,6 +125,20 @@ export async function emailPedidoListo(p: {
   await enviar(
     p.email,
     "✅ Tu pedido está listo — Peón Pet's",
-    `Hola ${p.nombre}, tu pedido ya está listo para retirar.\n\nPasá cuando quieras por Rivadavia 36, La Falda.\nHorario: Lun-Vie 9-13 y 16-20`
+    `Hola ${p.nombre}, tu pedido está listo para retirar en Rivadavia 36, La Falda.
+
+Horario: Lun-Vie 9-13 y 16-20`
+  );
+}
+
+export async function emailPedidoRetirado(p: {
+  email?: string | null;
+  nombre: string;
+}) {
+  if (!p.email) { console.warn("[email] Pedido sin email, omitiendo."); return; }
+  await enviar(
+    p.email,
+    "🎉 Pedido retirado — Peón Pet's",
+    `Hola ${p.nombre}, ¡gracias por tu compra! Tu pedido fue retirado exitosamente.`
   );
 }

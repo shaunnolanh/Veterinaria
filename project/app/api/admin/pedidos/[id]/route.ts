@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase-server";
 import { EstadoPedido } from "@/types";
 import { sanitizeText } from "@/lib/request-security";
+import { emailPedidoConfirmado, emailPedidoListo, emailPedidoRetirado } from "@/lib/emails";
 
 async function notificarPedidoPorWhatsApp(
   telefono: string,
@@ -108,6 +109,14 @@ export async function PATCH(
       await notificarPedidoPorWhatsApp(pedido.telefono, "confirmado", pedido);
     } else if (estado === "listo") {
       await notificarPedidoPorWhatsApp(pedido.telefono, "listo", pedido);
+    }
+
+    if (estado === "confirmado") {
+      await emailPedidoConfirmado({ email: pedido.email, nombre: pedido.nombre });
+    } else if (estado === "listo") {
+      await emailPedidoListo({ email: pedido.email, nombre: pedido.nombre });
+    } else if (estado === "retirado") {
+      await emailPedidoRetirado({ email: pedido.email, nombre: pedido.nombre });
     }
 
     return NextResponse.json({ pedido: pedidoActualizado });

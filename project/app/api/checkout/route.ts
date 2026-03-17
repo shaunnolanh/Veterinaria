@@ -7,6 +7,12 @@ interface CheckoutBody {
     producto_id: string;
     cantidad: number;
   }[];
+  cliente?: {
+    nombre?: string;
+    apellido?: string;
+    email?: string;
+    telefono?: string;
+  };
 }
 
 export async function POST(request: NextRequest) {
@@ -26,6 +32,17 @@ export async function POST(request: NextRequest) {
     }));
     if (!body.items?.length) {
       return NextResponse.json({ error: "El carrito está vacío." }, { status: 400 });
+    }
+
+    const cliente = {
+      nombre: sanitizeText(body.cliente?.nombre, 80),
+      apellido: sanitizeText(body.cliente?.apellido, 80),
+      email: sanitizeText(body.cliente?.email, 120),
+      telefono: sanitizeText(body.cliente?.telefono, 30),
+    };
+
+    if (!cliente.nombre || !cliente.apellido || !cliente.email || !cliente.telefono) {
+      return NextResponse.json({ error: "Completá los datos del cliente para continuar." }, { status: 400 });
     }
 
     const supabase = createAdminClient();
@@ -75,9 +92,10 @@ export async function POST(request: NextRequest) {
     const { data: pedido, error: pedidoError } = await supabase
       .from("pedidos")
       .insert({
-        nombre: "Cliente",
-        apellido: "Web",
-        telefono: "0000000000",
+        nombre: cliente.nombre,
+        apellido: cliente.apellido,
+        email: cliente.email,
+        telefono: cliente.telefono,
         items: itemsNormalizados,
         total,
         metodo_pago: "mercadopago",
