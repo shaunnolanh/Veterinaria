@@ -23,10 +23,13 @@ export default function HomePage() {
             Alimentos y accesorios para tu mascota, con retiro en La Falda
           </p>
           <div className="mt-8 flex justify-center">
-            <Link href="/tienda" className="btn-secundario">
-              Ir a la tienda
-            </Link>
-          </div>
+          <Link
+          href="/tienda"
+          className="btn-secundario transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-white/20 active:scale-95"
+          >
+          Ir a la tienda
+        </Link>
+        </div>
         </div>
       </section>
       <EquipoSection />

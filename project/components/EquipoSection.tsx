@@ -2,6 +2,7 @@ export default function EquipoSection() {
   const equipo = [
     {
       nombre: "Dra. Nataly",
+       foto: "/equipo/nataly.jpg",
       rol: "Veterinaria Principal",
       descripcion:
         "Especialista en medicina veterinaria general con amplia experiencia en diagnóstico, tratamiento y cuidado de mascotas.",
@@ -11,6 +12,7 @@ export default function EquipoSection() {
     },
     {
       nombre: "Alexandra",
+      foto: "/equipo/alexandra.jpg",
       rol: "Asistente Veterinaria",
       descripcion:
         "Asistente especializada en el cuidado y bienestar animal, ayudando a que cada visita sea cómoda para tu mascota.",
@@ -34,12 +36,20 @@ export default function EquipoSection() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-5xl mx-auto">
-          {equipo.map((persona) => (
-            <div key={persona.nombre} className="card">
-              <div className="flex flex-col items-center text-center">
-                <div className={`w-20 h-20 ${persona.color} rounded-[36px] flex items-center justify-center mb-4 text-white font-semibold text-xl`}>
-                  {persona.iniciales}
-                </div>
+  {equipo.map((persona) => (
+    <div key={persona.nombre} className="card transition-all duration-300 hover:scale-[1.02] hover:shadow-xl active:scale-[0.99] cursor-pointer">
+      <div className="flex flex-col items-center text-center">
+        {persona.foto ? (
+          <img
+            src={persona.foto}
+            alt={persona.nombre}
+            className="w-20 h-20 rounded-[36px] object-cover object-top mb-4"
+          />
+        ) : (
+          <div className={`w-20 h-20 ${persona.color} rounded-[36px] flex items-center justify-center mb-4 text-white font-semibold text-xl`}>
+            {persona.iniciales}
+          </div>
+        )}
 
                 <h3 className="font-semibold text-xl text-zinc-900 mb-1">{persona.nombre}</h3>
                 <p className="text-[#6B2FA0] text-xs font-semibold uppercase tracking-[0.15em] mb-3">{persona.rol}</p>

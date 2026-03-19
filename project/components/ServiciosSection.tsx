@@ -109,12 +109,15 @@ export default function ServiciosSection() {
           ))}
         </div>
 
-        <div className="text-center mt-10">
-          <Link href="/turnos" className="btn-primario inline-flex">
-            Sacá tu turno ahora
-          </Link>
-        </div>
-      </div>
+         <div className="text-center mt-10">
+         <Link
+         href="/turnos"
+         className="btn-primario inline-flex transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-[#6B2FA0]/40 active:scale-95"
+         >
+         Sacá tu turno ahora
+       </Link>
+       </div>
+       </div>
     </section>
   );
 }

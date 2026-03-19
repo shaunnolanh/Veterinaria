@@ -3,6 +3,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BotonesFlotantes from "@/components/BotonesFlotantes";
+import { CarritoProvider } from "@/context/CarritoContext";
 
 export const metadata: Metadata = {
   title: "Clínica Veterinaria Peón Pet's | La Falda, Córdoba",
@@ -38,7 +39,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="bg-oscuro text-white min-h-screen">
+        <CarritoProvider>
         {children}
+        </CarritoProvider>
       </body>
     </html>
   );

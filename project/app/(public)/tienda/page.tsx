@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Script from "next/script";
 import { CATEGORIA_LABELS, Producto } from "@/types";
+import { useCarrito } from "@/context/CarritoContext";
 
 interface ItemCarrito {
   producto: Producto;
@@ -28,11 +29,11 @@ declare global {
 };
 
 export default function TiendaPage() {
+  const { carritoAbierto, setCarritoAbierto } = useCarrito();
   const [productos, setProductos] = useState<Producto[]>([]);
   const [cargando, setCargando] = useState(true);
   const [categoriaActiva, setCategoriaActiva] = useState<CategoriaFiltro>("todas");
   const [carrito, setCarrito] = useState<ItemCarrito[]>([]);
-  const [carritoAbierto, setCarritoAbierto] = useState(false);
   const [procesando, setProcesando] = useState(false);
   const [errorCheckout, setErrorCheckout] = useState<string | null>(null);
   const [datosCliente, setDatosCliente] = useState({
@@ -173,10 +174,10 @@ export default function TiendaPage() {
             {productosFiltrados.map((producto) => {
               const agotado = producto.stock <= 0;
               return (
-                <article
-                  key={producto.id}
-                  className="bg-white border border-zinc-200 rounded-3xl overflow-hidden flex flex-col shadow-[0px_4px_12px_2px_rgba(0,0,0,0.06)]"
-                >
+              < article
+                key={producto.id}
+                className="bg-white border border-zinc-200 rounded-3xl overflow-hidden flex flex-col shadow-[0px_4px_12px_2px_rgba(0,0,0,0.06)] transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-[#6B2FA0]/10 active:scale-[0.99] cursor-pointer"
+              >
                   <div className="aspect-video bg-neutral-100 flex items-center justify-center overflow-hidden">
                     {producto.imagen_url ? (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -233,24 +234,33 @@ export default function TiendaPage() {
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+     <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {carrito.length === 0 ? (
               <p className="text-zinc-500 text-sm">Todavía no agregaste productos.</p>
             ) : (
               carrito.map((item) => (
-                <div key={item.producto.id} className="border border-zinc-200 rounded-2xl p-3">
-                  <p className="text-zinc-900 font-semibold text-sm">{item.producto.nombre}</p>
-                  <p className="text-zinc-500 text-xs">
-                    ${Number(item.producto.precio).toLocaleString("es-AR")} x {item.cantidad}
-                  </p>
-                  <div className="mt-2 flex items-center gap-2">
-                    <button onClick={() => cambiarCantidad(item.producto.id, -1)} className="px-2 rounded bg-neutral-100">
-                      -
-                    </button>
-                    <span className="text-zinc-900 text-sm">{item.cantidad}</span>
-                    <button onClick={() => cambiarCantidad(item.producto.id, 1)} className="px-2 rounded bg-neutral-100">
-                      +
-                    </button>
+                <div key={item.producto.id} className="border border-zinc-200 rounded-2xl p-3 flex gap-3 items-center">
+                  {item.producto.imagen_url && (
+                    <img
+                      src={item.producto.imagen_url}
+                      alt={item.producto.nombre}
+                      className="w-14 h-14 rounded-xl object-cover flex-shrink-0"
+                    />
+                  )}
+                  <div className="flex-1">
+                    <p className="text-zinc-900 font-semibold text-sm">{item.producto.nombre}</p>
+                    <p className="text-zinc-500 text-xs">
+                      ${Number(item.producto.precio).toLocaleString("es-AR")} x {item.cantidad}
+                    </p>
+                    <div className="mt-2 flex items-center gap-2">
+                      <button onClick={() => cambiarCantidad(item.producto.id, -1)} className="px-2 rounded bg-neutral-100">
+                        -
+                      </button>
+                      <span className="text-zinc-900 text-sm">{item.cantidad}</span>
+                      <button onClick={() => cambiarCantidad(item.producto.id, 1)} className="px-2 rounded bg-neutral-100">
+                        +
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))

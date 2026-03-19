@@ -31,8 +31,10 @@ export default function ParallaxScene() {
               Combinamos experiencia profesional y trato humano para brindar la atención que tu mascota se merece.
             </p>
 
-            <a href="/turnos" className="btn-secundario inline-flex">
-              Reservar turno
+            <a href="/turnos"
+              className="btn-secundario inline-flex transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-white/20 active:scale-95"
+            >
+             Reservar turno
             </a>
           </div>
         </div>

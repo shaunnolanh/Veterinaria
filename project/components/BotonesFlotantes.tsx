@@ -1,10 +1,12 @@
 "use client";
-
+import { useCarrito } from "@/context/CarritoContext";
 // Botones flotantes siempre visibles:
 // - WhatsApp (verde, esquina inferior derecha)
 // - Urgencias (rojo, sobre el WhatsApp)
 
 export default function BotonesFlotantes() {
+  const { carritoAbierto } = useCarrito();
+  if (carritoAbierto) return null;
   return (
     <div className="fixed bottom-6 right-4 z-50 flex flex-col gap-3 items-end">
       {/* Botón Urgencias */}
