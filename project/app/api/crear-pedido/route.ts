@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase-server";
 import { ItemPedido } from "@/types";
 import { sanitizeNumber, sanitizePhone, sanitizeText } from "@/lib/request-security";
+import { pedidoClienteSchema } from "@/lib/validation";
 
 async function notificarWhatsApp(
   telefono: string,
@@ -52,9 +53,13 @@ Ante cualquier duda llamanos al 03548-495677. 🌿`;
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const nombre = sanitizeText(body.nombre, 80);
-    const apellido = sanitizeText(body.apellido, 80);
-    const telefono = sanitizePhone(body.telefono);
+
+    const clienteParse = pedidoClienteSchema.safeParse({
+      nombre: sanitizeText(body.nombre, 80),
+      apellido: sanitizeText(body.apellido, 80),
+      telefono: sanitizePhone(body.telefono),
+    });
+
     const items: ItemPedido[] = (Array.isArray(body.items) ? body.items : [])
       .map((item: any) => ({
         producto_id: sanitizeText(item?.producto_id, 64),
@@ -65,17 +70,15 @@ export async function POST(request: NextRequest) {
       .filter((item: ItemPedido) => item.nombre && item.cantidad > 0);
     const total = sanitizeNumber(body.total, { min: 0, max: 10_000_000 }) || 0;
 
-    const _typed = body as {
-      nombre: string;
-      apellido: string;
-      telefono: string;
-      items: ItemPedido[];
-      total: number;
-    };
+    if (!clienteParse.success) {
+      return NextResponse.json({ error: clienteParse.error.issues[0]?.message || "Datos inválidos." }, { status: 400 });
+    }
 
-    if (!nombre || !apellido || !telefono || !items?.length) {
+    if (!items?.length) {
       return NextResponse.json({ error: "Datos incompletos." }, { status: 400 });
     }
+
+    const { nombre, apellido, telefono } = clienteParse.data;
 
     const supabase = createAdminClient();
 

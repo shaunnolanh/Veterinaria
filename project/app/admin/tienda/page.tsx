@@ -152,6 +152,29 @@ function mostrarToast(mensaje: string, tipo: "info" | "ok" | "error") {
     }
   }
 
+  async function eliminarProducto() {
+    if (!editando) return;
+    const confirmado = window.confirm("¿Estás seguro?");
+    if (!confirmado) return;
+
+    setGuardandoProducto(true);
+    setErrorProducto(null);
+
+    try {
+      const res = await fetch(`/api/admin/productos/${editando.id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "No se pudo eliminar el producto.");
+
+      setMostrarFormProducto(false);
+      mostrarToast("✅ Producto eliminado correctamente.", "ok");
+      await cargarProductos();
+    } catch (err) {
+      setErrorProducto(err instanceof Error ? err.message : "Error al eliminar el producto.");
+    } finally {
+      setGuardandoProducto(false);
+    }
+  }
+
   async function toggleActivo(producto: Producto) {
     await fetch(`/api/admin/productos/${producto.id}`, {
       method: "PATCH",
@@ -626,21 +649,33 @@ function mostrarToast(mensaje: string, tipo: "info" | "ok" | "error") {
                 <p className="text-red-600 text-xs bg-red-50 rounded-lg p-2">{errorProducto}</p>
               )}
 
-              <div className="flex gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setMostrarFormProducto(false)}
-                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 rounded-xl text-sm"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={guardandoProducto}
-                  className="flex-1 bg-purpura hover:bg-purpura/90 disabled:opacity-60 text-white font-bold py-3 rounded-xl text-sm"
-                >
-                  {guardandoProducto ? "Guardando..." : editando ? "Guardar cambios" : "Crear producto"}
-                </button>
+              <div className="pt-2 space-y-3">
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setMostrarFormProducto(false)}
+                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 rounded-xl text-sm"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={guardandoProducto}
+                    className="flex-1 bg-purpura hover:bg-purpura/90 disabled:opacity-60 text-white font-bold py-3 rounded-xl text-sm"
+                  >
+                    {guardandoProducto ? "Guardando..." : editando ? "Guardar cambios" : "Crear producto"}
+                  </button>
+                </div>
+                {editando && (
+                  <button
+                    type="button"
+                    onClick={eliminarProducto}
+                    disabled={guardandoProducto}
+                    className="block mx-auto bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 font-semibold py-3 px-6 rounded-xl text-sm disabled:opacity-60"
+                  >
+                    Eliminar producto
+                  </button>
+                )}
               </div>
             </form>
           </div>

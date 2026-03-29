@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { FormularioTurnoData, EspecieMascota, Especialidad } from "@/types";
+import { turnoFormSchema } from "@/lib/validation";
 
 interface Props {
   fecha: string;
@@ -41,19 +42,9 @@ export default function FormularioTurno({ fecha, hora, especialidad, onExito, on
     setEnviando(true);
     setError(null);
 
-    // Validaciones básicas
-    if (!form.nombre.trim() || !form.apellido.trim()) {
-      setError("Por favor completá tu nombre y apellido.");
-      setEnviando(false);
-      return;
-    }
-    if (!form.telefono.trim()) {
-      setError("El teléfono es necesario para confirmarte el turno.");
-      setEnviando(false);
-      return;
-    }
-    if (!form.mascota.trim()) {
-      setError("Indicanos el nombre de tu mascota.");
+    const parseResult = turnoFormSchema.safeParse({ ...form, fecha, hora, especialidad });
+    if (!parseResult.success) {
+      setError(parseResult.error.issues[0]?.message || "Revisá los datos ingresados.");
       setEnviando(false);
       return;
     }
@@ -118,7 +109,7 @@ export default function FormularioTurno({ fecha, hora, especialidad, onExito, on
           className="input-campo"
           placeholder="Ej: 03548 15-12-3456"
           value={form.telefono}
-          onChange={(e) => actualizar("telefono", e.target.value)}
+          onChange={(e) => actualizar("telefono", e.target.value.replace(/\D/g, ""))}
           required
           autoComplete="tel"
         />
