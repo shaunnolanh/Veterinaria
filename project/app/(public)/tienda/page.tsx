@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Script from "next/script";
 import { CATEGORIA_LABELS, Producto } from "@/types";
 import { useCarrito } from "@/context/CarritoContext";
+import { checkoutClienteSchema } from "@/lib/validation";
 
 interface ItemCarrito {
   producto: Producto;
@@ -95,11 +96,13 @@ export default function TiendaPage() {
   async function pagarConMercadoPago() {
     if (carrito.length === 0) return;
 
-    const { nombre, apellido, email, telefono } = datosCliente;
-    if (!nombre.trim() || !apellido.trim() || !email.trim() || !telefono.trim()) {
-      setErrorCheckout("Completá nombre, apellido, email y teléfono para continuar.");
+    const parseCliente = checkoutClienteSchema.safeParse(datosCliente);
+    if (!parseCliente.success) {
+      setErrorCheckout(parseCliente.error.issues[0]?.message || "Completá correctamente tus datos.");
       return;
     }
+
+    const { nombre, apellido, email, telefono } = parseCliente.data;
 
     setErrorCheckout(null);
     setProcesando(true);
@@ -306,7 +309,7 @@ export default function TiendaPage() {
               />
               <input
                 value={datosCliente.telefono}
-                onChange={(event) => setDatosCliente((prev) => ({ ...prev, telefono: event.target.value }))}
+                onChange={(event) => setDatosCliente((prev) => ({ ...prev, telefono: event.target.value.replace(/\D/g, "") }))}
                 className="w-full rounded-2xl border border-zinc-200 px-3 py-2 text-sm text-zinc-900 outline-none focus:ring-2 focus:ring-[#6B2FA0]/30"
                 placeholder="Teléfono *"
                 type="tel"

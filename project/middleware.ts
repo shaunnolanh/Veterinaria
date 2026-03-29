@@ -1,4 +1,4 @@
-// Middleware de protección de rutas admin + rate limiting API
+// Middleware de protección de rutas admin + rate limiting API + headers de seguridad
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
@@ -10,6 +10,43 @@ function getClientIp(request: NextRequest) {
     request.headers.get("x-real-ip") ||
     "unknown"
   );
+}
+
+function buildCspHeader(request: NextRequest) {
+  const selfOrigin = request.nextUrl.origin;
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+
+  const connectSrc = ["'self'", selfOrigin];
+  if (supabaseUrl) {
+    connectSrc.push(supabaseUrl);
+    try {
+      connectSrc.push(new URL(supabaseUrl).origin);
+    } catch {
+      // Ignorar URL inválida y mantener política estricta.
+    }
+  }
+
+  return [
+    "default-src 'self'",
+    "base-uri 'self'",
+    "object-src 'none'",
+    "frame-ancestors 'none'",
+    "form-action 'self'",
+    `connect-src ${Array.from(new Set(connectSrc)).join(" ")}`,
+    "img-src 'self' data: blob:",
+    "style-src 'self' 'unsafe-inline'",
+    "script-src 'self' 'unsafe-inline'",
+    "font-src 'self' data:",
+    "upgrade-insecure-requests",
+  ].join("; ");
+}
+
+function applySecurityHeaders(response: NextResponse, request: NextRequest) {
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("X-Frame-Options", "DENY");
+  response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
+  response.headers.set("Content-Security-Policy", buildCspHeader(request));
+  return response;
 }
 
 function validateRateLimit(request: NextRequest) {
@@ -27,9 +64,12 @@ function validateRateLimit(request: NextRequest) {
   });
 
   if (!result.allowed) {
-    return NextResponse.json(
-      { error: "Demasiadas solicitudes. Intentá nuevamente en 1 minuto." },
-      { status: 429 }
+    return applySecurityHeaders(
+      NextResponse.json(
+        { error: "Demasiadas solicitudes. Intentá nuevamente en 1 minuto." },
+        { status: 429 }
+      ),
+      request
     );
   }
 
@@ -46,29 +86,29 @@ export async function middleware(request: NextRequest) {
   const rateLimitResponse = validateRateLimit(request);
   if (rateLimitResponse) return rateLimitResponse;
 
-  if (!isAdminPage && !isAdminApi) return NextResponse.next();
-  if (isLoginPage || isLoginApi) return NextResponse.next();
+  if (!isAdminPage && !isAdminApi) return applySecurityHeaders(NextResponse.next(), request);
+  if (isLoginPage || isLoginApi) return applySecurityHeaders(NextResponse.next(), request);
 
   const session = request.cookies.get("admin_session");
 
   if (!session?.value) {
     if (isAdminApi) {
-      return NextResponse.json({ error: "No autorizado." }, { status: 401 });
+      return applySecurityHeaders(NextResponse.json({ error: "No autorizado." }, { status: 401 }), request);
     }
-    return NextResponse.redirect(new URL("/admin/login", request.url));
+    return applySecurityHeaders(NextResponse.redirect(new URL("/admin/login", request.url)), request);
   }
 
   try {
     const secret = new TextEncoder().encode(process.env.ADMIN_SESSION_SECRET!);
     await jwtVerify(session.value, secret);
-    return NextResponse.next();
+    return applySecurityHeaders(NextResponse.next(), request);
   } catch {
     if (isAdminApi) {
-      return NextResponse.json({ error: "Sesión inválida." }, { status: 401 });
+      return applySecurityHeaders(NextResponse.json({ error: "Sesión inválida." }, { status: 401 }), request);
     }
     const response = NextResponse.redirect(new URL("/admin/login", request.url));
     response.cookies.delete("admin_session");
-    return response;
+    return applySecurityHeaders(response, request);
   }
 }
 
