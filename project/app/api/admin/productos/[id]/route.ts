@@ -39,6 +39,31 @@ export async function PATCH(
   }
 }
 
+
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const productoId = sanitizeText(id, 64);
+    if (!productoId) {
+      return NextResponse.json({ error: "Producto inválido." }, { status: 400 });
+    }
+
+    const supabase = createAdminClient();
+    const { error } = await supabase.from("productos").delete().eq("id", productoId);
+
+    if (error) {
+      return NextResponse.json({ error: "No se pudo eliminar el producto." }, { status: 500 });
+    }
+
+    return NextResponse.json({ ok: true });
+  } catch {
+    return NextResponse.json({ error: "Error interno." }, { status: 500 });
+  }
+}
+
 // Subir imagen a Supabase Storage
 export async function POST(
   request: NextRequest,

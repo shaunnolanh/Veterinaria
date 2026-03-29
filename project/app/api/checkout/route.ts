@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase-server";
 import { sanitizeNumber, sanitizeText } from "@/lib/request-security";
+import { checkoutPayloadSchema } from "@/lib/validation";
 
 interface CheckoutBody {
   items: {
@@ -25,28 +26,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = (await request.json()) as CheckoutBody;
-    body.items = (Array.isArray(body.items) ? body.items : []).map((item) => ({
-      producto_id: sanitizeText(item?.producto_id, 64),
-      cantidad: sanitizeNumber(item?.cantidad, { min: 1, max: 999 }) || 0,
-    }));
-    if (!body.items?.length) {
-      return NextResponse.json({ error: "El carrito está vacío." }, { status: 400 });
-    }
-
-    const cliente = {
-      nombre: sanitizeText(body.cliente?.nombre, 80),
-      apellido: sanitizeText(body.cliente?.apellido, 80),
-      email: sanitizeText(body.cliente?.email, 120),
-      telefono: sanitizeText(body.cliente?.telefono, 30),
+    const rawBody = (await request.json()) as CheckoutBody;
+    const normalizedBody = {
+      items: (Array.isArray(rawBody.items) ? rawBody.items : []).map((item) => ({
+        producto_id: sanitizeText(item?.producto_id, 64),
+        cantidad: sanitizeNumber(item?.cantidad, { min: 1, max: 999 }) || 0,
+      })),
+      cliente: {
+        nombre: sanitizeText(rawBody.cliente?.nombre, 80),
+        apellido: sanitizeText(rawBody.cliente?.apellido, 80),
+        email: sanitizeText(rawBody.cliente?.email, 120).toLowerCase(),
+        telefono: sanitizeText(rawBody.cliente?.telefono, 15),
+      },
     };
 
-    if (!cliente.nombre || !cliente.apellido || !cliente.email || !cliente.telefono) {
-      return NextResponse.json({ error: "Completá los datos del cliente para continuar." }, { status: 400 });
+    const parsedBody = checkoutPayloadSchema.safeParse(normalizedBody);
+    if (!parsedBody.success) {
+      return NextResponse.json({ error: parsedBody.error.issues[0]?.message || "Datos inválidos." }, { status: 400 });
     }
 
+    const body = parsedBody.data;
+    const cliente = body.cliente;
+
     const supabase = createAdminClient();
-    const ids = body.items.map((item) => item.producto_id);
+    const ids = body.items.map((item: { producto_id: string; cantidad: number }) => item.producto_id);
 
     const { data: productos, error: productosError } = await supabase
       .from("productos")
@@ -59,7 +62,7 @@ export async function POST(request: NextRequest) {
     }
 
     const itemsNormalizados = body.items
-      .map((item) => {
+      .map((item: { producto_id: string; cantidad: number }) => {
         const producto = productos.find((p) => p.id === item.producto_id);
         if (!producto || item.cantidad <= 0) return null;
         if ((producto.stock || 0) < item.cantidad) {
