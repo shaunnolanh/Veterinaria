@@ -20,12 +20,13 @@ export default function HeroSection() {
     <section
       className="relative overflow-hidden pt-16 pb-20 lg:pb-28 lg:min-h-[600px] lg:flex lg:items-center"
       style={{
-        background: "linear-gradient(135deg, #ffffff, #f3e8ff, #edffa0, #f3e8ff)",
+        background:
+          "linear-gradient(135deg, #ffffff, #f3e8ff, #ede9f6, #ffffff)",
         backgroundSize: "300% 300%",
         animation: "gradientBreath 10s ease infinite",
       }}
     >
-      <style jsx>{`
+      <style>{`
         @keyframes gradientBreath {
           0%,
           100% {
@@ -42,15 +43,20 @@ export default function HeroSection() {
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-[32px] outline outline-1 outline-[#6B2FA0] bg-[#A8D400]/10">
               <span className="w-2 h-2 bg-[#A8D400] rounded-full" />
-              <span className="text-[#6B2FA0] text-base font-normal">La Falda, Córdoba · Lun a Vie 9–13 y 16–20</span>
+              <span className="text-[#6B2FA0] text-base font-normal">
+                La Falda, Córdoba · Lun a Vie 9–13 y 16–20
+              </span>
             </div>
 
             <h1 className="mt-6 max-w-4xl text-zinc-900 text-4xl sm:text-5xl lg:text-6xl font-medium leading-tight lg:leading-[72px]">
-              Clínica Veterinaria <span className="text-[#6B2FA0]">Peón Pet&apos;s</span>
+              Clínica Veterinaria{" "}
+              <span className="text-[#6B2FA0]">Peón Pet&apos;s</span>
             </h1>
 
             <p className="mt-5 max-w-2xl text-zinc-700 text-lg leading-7">
-              Cuidamos a tu mejor amigo con <span className="text-[#A8D400] font-semibold">dedicación</span> y profesionalismo
+              Cuidamos a tu mejor amigo con{" "}
+              <span className="text-[#A8D400] font-semibold">dedicación</span> y
+              profesionalismo
             </p>
 
             <div className="mt-10 flex flex-col sm:flex-row items-start gap-3">
@@ -74,11 +80,15 @@ export default function HeroSection() {
               </div>
               <div className="card text-center">
                 <p className="text-4xl font-semibold text-[#A8D400]">150K</p>
-                <p className="mt-1 text-zinc-600 text-sm">Consultas realizadas</p>
+                <p className="mt-1 text-zinc-600 text-sm">
+                  Consultas realizadas
+                </p>
               </div>
               <div className="card text-center">
                 <p className="text-4xl font-semibold text-[#A8D400]">95%</p>
-                <p className="mt-1 text-zinc-600 text-sm">Clientes satisfechos</p>
+                <p className="mt-1 text-zinc-600 text-sm">
+                  Clientes satisfechos
+                </p>
               </div>
             </div>
           </div>
