@@ -13,7 +13,11 @@ const NAV_ITEMS = [
   { href: "/admin/tienda", label: "Tienda", icono: "🛒" },
 ];
 
-export default function AdminShell({ children }: { children: React.ReactNode }) {
+export default function AdminShell({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -36,10 +40,16 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         <div className="px-5 py-5 border-b border-zinc-100">
           <Link href="/admin" className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-purpura flex items-center justify-center shrink-0 shadow-[0px_4px_12px_2px_rgba(0,0,0,0.06)]">
-              <span className="text-verde-lima font-black text-xs">PP</span>
+              <img
+                src="/logo.png"
+                alt="Peón Pet's"
+                className="w-full h-full object-contain"
+              />
             </div>
             <div>
-              <p className="font-black text-zinc-900 text-sm leading-tight">Panel Admin</p>
+              <p className="font-black text-zinc-900 text-sm leading-tight">
+                Panel Admin
+              </p>
               <p className="text-zinc-400 text-xs">Peón Pet's</p>
             </div>
           </Link>
@@ -78,9 +88,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
       </aside>
 
       {/* Contenido principal */}
-      <main className="flex-1 ml-64 min-h-screen">
-        {children}
-      </main>
+      <main className="flex-1 ml-64 min-h-screen">{children}</main>
     </div>
   );
 }
