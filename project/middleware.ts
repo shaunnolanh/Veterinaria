@@ -26,6 +26,14 @@ function buildCspHeader(request: NextRequest) {
     }
   }
 
+  let supabaseOrigin = "";
+
+  try {
+    supabaseOrigin = supabaseUrl ? new URL(supabaseUrl).origin : "";
+  } catch {
+    supabaseOrigin = "";
+  }
+
   return [
     "default-src 'self'",
     "base-uri 'self'",
@@ -33,7 +41,7 @@ function buildCspHeader(request: NextRequest) {
     "frame-ancestors 'none'",
     "form-action 'self'",
     `connect-src ${Array.from(new Set(connectSrc)).join(" ")}`,
-    "img-src 'self' data: blob:",
+    `img-src 'self' data: blob:${supabaseOrigin ? " " + supabaseOrigin : ""}`,
     "style-src 'self' 'unsafe-inline'",
     "script-src 'self' 'unsafe-inline'",
     "font-src 'self' data:",
@@ -44,7 +52,10 @@ function buildCspHeader(request: NextRequest) {
 function applySecurityHeaders(response: NextResponse, request: NextRequest) {
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("X-Frame-Options", "DENY");
-  response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
+  response.headers.set(
+    "Strict-Transport-Security",
+    "max-age=63072000; includeSubDomains; preload",
+  );
   response.headers.set("Content-Security-Policy", buildCspHeader(request));
   return response;
 }
@@ -67,9 +78,9 @@ function validateRateLimit(request: NextRequest) {
     return applySecurityHeaders(
       NextResponse.json(
         { error: "Demasiadas solicitudes. Intentá nuevamente en 1 minuto." },
-        { status: 429 }
+        { status: 429 },
       ),
-      request
+      request,
     );
   }
 
@@ -86,16 +97,24 @@ export async function middleware(request: NextRequest) {
   const rateLimitResponse = validateRateLimit(request);
   if (rateLimitResponse) return rateLimitResponse;
 
-  if (!isAdminPage && !isAdminApi) return applySecurityHeaders(NextResponse.next(), request);
-  if (isLoginPage || isLoginApi) return applySecurityHeaders(NextResponse.next(), request);
+  if (!isAdminPage && !isAdminApi)
+    return applySecurityHeaders(NextResponse.next(), request);
+  if (isLoginPage || isLoginApi)
+    return applySecurityHeaders(NextResponse.next(), request);
 
   const session = request.cookies.get("admin_session");
 
   if (!session?.value) {
     if (isAdminApi) {
-      return applySecurityHeaders(NextResponse.json({ error: "No autorizado." }, { status: 401 }), request);
+      return applySecurityHeaders(
+        NextResponse.json({ error: "No autorizado." }, { status: 401 }),
+        request,
+      );
     }
-    return applySecurityHeaders(NextResponse.redirect(new URL("/admin/login", request.url)), request);
+    return applySecurityHeaders(
+      NextResponse.redirect(new URL("/admin/login", request.url)),
+      request,
+    );
   }
 
   try {
@@ -104,9 +123,14 @@ export async function middleware(request: NextRequest) {
     return applySecurityHeaders(NextResponse.next(), request);
   } catch {
     if (isAdminApi) {
-      return applySecurityHeaders(NextResponse.json({ error: "Sesión inválida." }, { status: 401 }), request);
+      return applySecurityHeaders(
+        NextResponse.json({ error: "Sesión inválida." }, { status: 401 }),
+        request,
+      );
     }
-    const response = NextResponse.redirect(new URL("/admin/login", request.url));
+    const response = NextResponse.redirect(
+      new URL("/admin/login", request.url),
+    );
     response.cookies.delete("admin_session");
     return applySecurityHeaders(response, request);
   }
