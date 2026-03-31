@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import AdminShell from "@/components/admin/AdminShell";
 
@@ -19,11 +19,15 @@ export default function ClientesPage() {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [q, setQ] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const inputCSVRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({
     nombre: "",
     apellido: "",
     telefono: "",
     email: "",
+    mascota_nombre: "",
+    mascota_especie: "perro",
+    mascota_raza: "",
   });
 
   async function cargar(query = "") {
@@ -49,13 +53,59 @@ export default function ClientesPage() {
     const res = await fetch("/api/admin/clientes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify({
+        nombre: form.nombre,
+        apellido: form.apellido,
+        telefono: form.telefono,
+        email: form.email,
+      }),
     });
-    if (res.ok) {
-      setShowModal(false);
-      setForm({ nombre: "", apellido: "", telefono: "", email: "" });
-      await cargar(q);
+    if (!res.ok) return;
+    const data = await res.json();
+    const clienteId = data.cliente.id;
+
+    if (form.mascota_nombre && clienteId) {
+      await fetch(`/api/admin/clientes/${clienteId}/mascotas`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre: form.mascota_nombre,
+          especie: form.mascota_especie,
+          raza: form.mascota_raza,
+        }),
+      });
     }
+
+    setShowModal(false);
+    setForm({
+      nombre: "",
+      apellido: "",
+      telefono: "",
+      email: "",
+      mascota_nombre: "",
+      mascota_especie: "perro",
+      mascota_raza: "",
+    });
+    await cargar(q);
+  }
+
+  async function importarCSV(e: React.ChangeEvent<HTMLInputElement>) {
+    const archivo = e.target.files?.[0];
+    if (!archivo) return;
+    const fd = new FormData();
+    fd.append("csv", archivo);
+    const res = await fetch("/api/admin/clientes/importar-csv", {
+      method: "POST",
+      body: fd,
+    });
+    const data = await res.json();
+    if (res.ok) {
+      alert(`✅ ${data.cantidad} clientes importados correctamente.`);
+      await cargar(q);
+    } else {
+      alert(`❌ Error: ${data.error}`);
+    }
+    if (inputCSVRef.current) inputCSVRef.current.value = "";
   }
 
   return (
@@ -78,6 +128,16 @@ export default function ClientesPage() {
             >
               Exportar CSV
             </a>
+            <label className="bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm font-semibold text-gray-700 cursor-pointer hover:bg-gray-50">
+              Importar CSV
+              <input
+                ref={inputCSVRef}
+                type="file"
+                accept=".csv"
+                className="hidden"
+                onChange={importarCSV}
+              />
+            </label>
             <button
               onClick={() => setShowModal(true)}
               className="bg-purpura text-white rounded-xl px-4 py-2 text-sm font-semibold"
@@ -149,9 +209,12 @@ export default function ClientesPage() {
             <div className="bg-white rounded-2xl p-5 w-full max-w-md border border-gray-100 shadow-sm">
               <h3 className="font-bold mb-3 text-gray-900">Agregar cliente</h3>
               <form onSubmit={crearCliente} className="space-y-3">
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                  Datos del cliente
+                </p>
                 <input
                   required
-                  className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm"
+                  className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400"
                   placeholder="Nombre"
                   value={form.nombre}
                   onChange={(e) =>
@@ -160,7 +223,7 @@ export default function ClientesPage() {
                 />
                 <input
                   required
-                  className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm"
+                  className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400"
                   placeholder="Apellido"
                   value={form.apellido}
                   onChange={(e) =>
@@ -169,7 +232,7 @@ export default function ClientesPage() {
                 />
                 <input
                   required
-                  className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm"
+                  className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400"
                   placeholder="Teléfono"
                   value={form.telefono}
                   onChange={(e) =>
@@ -177,17 +240,51 @@ export default function ClientesPage() {
                   }
                 />
                 <input
-                  className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm"
-                  placeholder="Email"
+                  className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400"
+                  placeholder="Email (opcional)"
                   value={form.email}
                   onChange={(e) =>
                     setForm((p) => ({ ...p, email: e.target.value }))
                   }
                 />
-                <div className="flex gap-2 justify-end">
+
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide pt-1">
+                  Mascota (opcional)
+                </p>
+                <input
+                  className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400"
+                  placeholder="Nombre de la mascota"
+                  value={form.mascota_nombre}
+                  onChange={(e) =>
+                    setForm((p) => ({ ...p, mascota_nombre: e.target.value }))
+                  }
+                />
+                <select
+                  className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900"
+                  value={form.mascota_especie}
+                  onChange={(e) =>
+                    setForm((p) => ({ ...p, mascota_especie: e.target.value }))
+                  }
+                >
+                  {["perro", "gato", "conejo", "ave", "otro"].map((esp) => (
+                    <option key={esp} value={esp}>
+                      {esp}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400"
+                  placeholder="Raza (opcional)"
+                  value={form.mascota_raza}
+                  onChange={(e) =>
+                    setForm((p) => ({ ...p, mascota_raza: e.target.value }))
+                  }
+                />
+
+                <div className="flex gap-2 justify-end pt-1">
                   <button
                     type="button"
-                    className="rounded-xl px-4 py-2 border border-gray-200 text-sm text-gray-900"
+                    className="rounded-xl px-4 py-2 border border-gray-200 text-sm text-gray-700"
                     onClick={() => setShowModal(false)}
                   >
                     Cancelar
