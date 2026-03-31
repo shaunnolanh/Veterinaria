@@ -142,3 +142,59 @@ export async function emailPedidoRetirado(p: {
     `Hola ${p.nombre}, ¡Gracias por tu compra! Tu pedido fue retirado exitosamente`
   );
 }
+
+
+export async function emailNuevoTurnoParaVet(params: {
+  emailVet: string;
+  nombreVet: string;
+  nombre: string;
+  apellido: string;
+  telefono: string;
+  mascota: string;
+  especie: string;
+  motivo?: string | null;
+  fecha: string;
+  hora: string;
+  especialidad: string;
+}) {
+  await enviar(
+    params.emailVet,
+    `📅 Nuevo turno — ${params.especialidad} — ${fmtFecha(params.fecha)} ${params.hora}`,
+    `Hola ${params.nombreVet}, se registró un nuevo turno para tu especialidad.
+
+Paciente: ${params.nombre} ${params.apellido}
+Teléfono: ${params.telefono}
+Mascota: ${params.mascota} (${params.especie})
+Fecha: ${fmtFecha(params.fecha)} - Hora: ${params.hora}
+Motivo: ${params.motivo || 'No especificado'}
+
+Podés gestionar el turno desde el panel admin.`
+  );
+}
+
+export async function emailNuevoTurnoParaClinica(params: {
+  nombre: string;
+  apellido: string;
+  telefono: string;
+  mascota: string;
+  especie: string;
+  motivo?: string | null;
+  fecha: string;
+  hora: string;
+  especialidad: string;
+}) {
+  const emailClinica = process.env.CLINICA_EMAIL;
+  if (!emailClinica) { console.warn("[email] CLINICA_EMAIL no configurado."); return; }
+  await enviar(
+    emailClinica,
+    `📅 Nuevo turno — ${params.especialidad} — ${fmtFecha(params.fecha)} ${params.hora}`,
+    `Nuevo turno recibido.
+
+Especialidad: ${params.especialidad}
+Paciente: ${params.nombre} ${params.apellido}
+Teléfono: ${params.telefono}
+Mascota: ${params.mascota} (${params.especie})
+Fecha: ${fmtFecha(params.fecha)} - Hora: ${params.hora}
+Motivo: ${params.motivo || 'No especificado'}`
+  );
+}

@@ -1,8 +1,8 @@
 // API route para crear nuevos turnos (POST) y listar turnos (GET)
 import { NextRequest, NextResponse } from "next/server";
-import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { createAdminClient, createServerSupabaseClient } from "@/lib/supabase-server";
 import { esDiaLaboral, generarSlotsDelDia } from "@/lib/horarios";
-import { emailTurnoRecibido } from "@/lib/emails";
+import { emailNuevoTurnoParaClinica, emailNuevoTurnoParaVet, emailTurnoRecibido } from "@/lib/emails";
 import { sanitizeDate, sanitizeEmail, sanitizePhone, sanitizeText, sanitizeTime } from "@/lib/request-security";
 import { turnoFormSchema } from "@/lib/validation";
 
@@ -118,6 +118,49 @@ await emailTurnoRecibido({
       especie: nuevoTurno.especie,
       motivo: nuevoTurno.motivo,
     });
+
+    // Notificar al veterinario de la especialidad y a la clínica
+    try {
+      const supabaseAdmin = createAdminClient();
+      const { data: vet } = await supabaseAdmin
+        .from("veterinarios")
+        .select("nombre, email")
+        .eq("especialidad", especialidadFinal)
+        .eq("activo", true)
+        .limit(1)
+        .single();
+
+      if (vet) {
+        await emailNuevoTurnoParaVet({
+          emailVet: vet.email,
+          nombreVet: vet.nombre,
+          nombre: nuevoTurno.nombre,
+          apellido: nuevoTurno.apellido,
+          telefono: nuevoTurno.telefono,
+          mascota: nuevoTurno.mascota,
+          especie: nuevoTurno.especie,
+          motivo: nuevoTurno.motivo,
+          fecha: nuevoTurno.fecha,
+          hora: nuevoTurno.hora,
+          especialidad: especialidadFinal,
+        });
+      }
+
+      await emailNuevoTurnoParaClinica({
+        nombre: nuevoTurno.nombre,
+        apellido: nuevoTurno.apellido,
+        telefono: nuevoTurno.telefono,
+        mascota: nuevoTurno.mascota,
+        especie: nuevoTurno.especie,
+        motivo: nuevoTurno.motivo,
+        fecha: nuevoTurno.fecha,
+        hora: nuevoTurno.hora,
+        especialidad: especialidadFinal,
+      });
+    } catch (emailErr) {
+      console.error("[turnos] Error notificando al vet/clínica:", emailErr);
+      // No cortar el flujo si falla el email interno
+    }
 
     return NextResponse.json({ turno: nuevoTurno }, { status: 201 });
   } catch (err) {
