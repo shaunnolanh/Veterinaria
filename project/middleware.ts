@@ -42,9 +42,9 @@ function buildCspHeader(request: NextRequest) {
     "form-action 'self'",
     `connect-src ${Array.from(new Set(connectSrc)).join(" ")}`,
     `img-src 'self' data: blob:${supabaseOrigin ? " " + supabaseOrigin : ""}`,
-    "style-src 'self' 'unsafe-inline'",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "script-src 'self' 'unsafe-inline'",
-    "font-src 'self' data:",
+    "font-src 'self' data: https://fonts.gstatic.com",
     "upgrade-insecure-requests",
   ].join("; ");
 }
