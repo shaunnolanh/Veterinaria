@@ -10,6 +10,8 @@ const NAV_ITEMS = [
   { href: "/admin/oftalmologia", label: "Oftalmología", icono: "👁️" },
   { href: "/admin/endocrinologia", label: "Endocrinología", icono: "💊" },
   { href: "/admin/especialidades", label: "Fechas Especialistas", icono: "📅" },
+  { href: "/admin/veterinarios", label: "Veterinarios", icono: "👩‍⚕️" },
+  { href: "/admin/clientes", label: "Clientes", icono: "👥" },
   { href: "/admin/tienda", label: "Tienda", icono: "🛒" },
 ];
 
