@@ -34,12 +34,25 @@ export default function ClientesPage() {
   });
 
   async function cargar(query = "") {
-    const res = await fetch(
-      `/api/admin/clientes?q=${encodeURIComponent(query)}`,
-      { cache: "no-store" },
-    );
-    const data = await res.json();
-    setClientes(data.clientes || []);
+    try {
+      const res = await fetch(
+        `/api/admin/clientes?q=${encodeURIComponent(query)}`,
+        { cache: "no-store" },
+      );
+
+      if (!res.ok) {
+        console.error("Error al cargar clientes:", res.status, res.statusText);
+        setClientes([]);
+        return;
+      }
+
+      const data = await res.json();
+      console.log("Respuesta clientes:", data);
+      setClientes(data.clientes || []);
+    } catch (error) {
+      console.error("Fallo cargando clientes:", error);
+      setClientes([]);
+    }
   }
 
   useEffect(() => {
@@ -156,7 +169,7 @@ export default function ClientesPage() {
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Buscar por nombre, apellido o teléfono"
-              className="flex-1 rounded-xl border border-gray-200 px-3 py-2 text-sm"
+              className="flex-1 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400"
             />
             <button className="bg-purpura text-white rounded-xl px-4 py-2 text-sm font-semibold">
               Buscar
@@ -184,10 +197,18 @@ export default function ClientesPage() {
                     className="border-t border-gray-100 hover:bg-gray-50 cursor-pointer"
                     onClick={() => router.push(`/admin/clientes/${cliente.id}`)}
                   >
-                    <td className="px-4 py-3 text-gray-900">{cliente.nombre}</td>
-                    <td className="px-4 py-3 text-gray-900">{cliente.apellido}</td>
-                    <td className="px-4 py-3 text-gray-900">{cliente.telefono}</td>
-                    <td className="px-4 py-3 text-gray-900">{cliente.email || "-"}</td>
+                    <td className="px-4 py-3 text-gray-900">
+                      {cliente.nombre}
+                    </td>
+                    <td className="px-4 py-3 text-gray-900">
+                      {cliente.apellido}
+                    </td>
+                    <td className="px-4 py-3 text-gray-900">
+                      {cliente.telefono}
+                    </td>
+                    <td className="px-4 py-3 text-gray-900">
+                      {cliente.email || "-"}
+                    </td>
                     <td className="px-4 py-3 text-gray-900">
                       {cliente.primera_mascota_nombre
                         ? `${cliente.primera_mascota_nombre}${cliente.mascotas_count > 1 ? ` +${cliente.mascotas_count - 1}` : ""}`
@@ -198,8 +219,12 @@ export default function ClientesPage() {
                         ? `${cliente.primera_mascota_especie}${cliente.primera_mascota_raza ? ` · ${cliente.primera_mascota_raza}` : ""}`
                         : "-"}
                     </td>
-                    <td className="px-4 py-3 text-gray-900">{cliente.mascotas_count}</td>
-                    <td className="px-4 py-3 text-gray-900">{cliente.created_at?.slice(0, 10)}</td>
+                    <td className="px-4 py-3 text-gray-900">
+                      {cliente.mascotas_count}
+                    </td>
+                    <td className="px-4 py-3 text-gray-900">
+                      {cliente.created_at?.slice(0, 10)}
+                    </td>
                   </tr>
                 ))}
               </tbody>
