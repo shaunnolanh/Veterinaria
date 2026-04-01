@@ -41,10 +41,11 @@ function buildCspHeader(request: NextRequest) {
     "frame-ancestors 'none'",
     "form-action 'self'",
     `connect-src ${Array.from(new Set(connectSrc)).join(" ")}`,
-    `img-src 'self' data: blob:${supabaseOrigin ? " " + supabaseOrigin : ""}`,
+    `img-src 'self' data: blob: https:${supabaseOrigin ? " " + supabaseOrigin : ""}`,
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-    "script-src 'self' 'unsafe-inline'",
+    "script-src 'self' 'unsafe-inline' https://maps.googleapis.com https://maps.gstatic.com",
     "font-src 'self' data: https://fonts.gstatic.com",
+    "frame-src 'self' https://www.google.com https://maps.google.com https://*.google.com",
     "upgrade-insecure-requests",
   ].join("; ");
 }
@@ -137,5 +138,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/api/:path*"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };
