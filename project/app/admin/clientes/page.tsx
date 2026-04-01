@@ -12,6 +12,9 @@ interface Cliente {
   email: string | null;
   created_at: string;
   mascotas_count: number;
+  primera_mascota_nombre: string | null;
+  primera_mascota_especie: string | null;
+  primera_mascota_raza: string | null;
 }
 
 export default function ClientesPage() {
@@ -168,6 +171,8 @@ export default function ClientesPage() {
                   <th className="text-left px-4 py-3">Apellido</th>
                   <th className="text-left px-4 py-3">Teléfono</th>
                   <th className="text-left px-4 py-3">Email</th>
+                  <th className="text-left px-4 py-3">Mascota</th>
+                  <th className="text-left px-4 py-3">Especie / Raza</th>
                   <th className="text-left px-4 py-3">N° mascotas</th>
                   <th className="text-left px-4 py-3">Alta</th>
                 </tr>
@@ -179,24 +184,22 @@ export default function ClientesPage() {
                     className="border-t border-gray-100 hover:bg-gray-50 cursor-pointer"
                     onClick={() => router.push(`/admin/clientes/${cliente.id}`)}
                   >
+                    <td className="px-4 py-3 text-gray-900">{cliente.nombre}</td>
+                    <td className="px-4 py-3 text-gray-900">{cliente.apellido}</td>
+                    <td className="px-4 py-3 text-gray-900">{cliente.telefono}</td>
+                    <td className="px-4 py-3 text-gray-900">{cliente.email || "-"}</td>
                     <td className="px-4 py-3 text-gray-900">
-                      {cliente.nombre}
+                      {cliente.primera_mascota_nombre
+                        ? `${cliente.primera_mascota_nombre}${cliente.mascotas_count > 1 ? ` +${cliente.mascotas_count - 1}` : ""}`
+                        : "-"}
                     </td>
-                    <td className="px-4 py-3 text-gray-900">
-                      {cliente.apellido}
+                    <td className="px-4 py-3 text-gray-900 capitalize">
+                      {cliente.primera_mascota_especie
+                        ? `${cliente.primera_mascota_especie}${cliente.primera_mascota_raza ? ` · ${cliente.primera_mascota_raza}` : ""}`
+                        : "-"}
                     </td>
-                    <td className="px-4 py-3 text-gray-900">
-                      {cliente.telefono}
-                    </td>
-                    <td className="px-4 py-3 text-gray-900">
-                      {cliente.email || "-"}
-                    </td>
-                    <td className="px-4 py-3 text-gray-900">
-                      {cliente.mascotas_count}
-                    </td>
-                    <td className="px-4 py-3 text-gray-900">
-                      {cliente.created_at?.slice(0, 10)}
-                    </td>
+                    <td className="px-4 py-3 text-gray-900">{cliente.mascotas_count}</td>
+                    <td className="px-4 py-3 text-gray-900">{cliente.created_at?.slice(0, 10)}</td>
                   </tr>
                 ))}
               </tbody>

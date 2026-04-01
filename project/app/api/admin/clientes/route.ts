@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     const supabase = createAdminClient();
     let query = supabase
       .from("clientes")
-      .select("id, nombre, apellido, email, telefono, created_at, mascotas(count)")
+      .select("id, nombre, apellido, email, telefono, created_at, mascotas(id, nombre, especie, raza)")
       .order("created_at", { ascending: false });
 
     if (q) {
@@ -22,10 +22,17 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "No se pudieron obtener los clientes." }, { status: 500 });
     }
 
-    const clientes = (data || []).map((cliente) => ({
-      ...cliente,
-      mascotas_count: Array.isArray(cliente.mascotas) ? cliente.mascotas[0]?.count || 0 : 0,
-    }));
+    const clientes = (data || []).map((cliente) => {
+      const mascotas = Array.isArray(cliente.mascotas) ? cliente.mascotas : [];
+      const primera = mascotas[0] || null;
+      return {
+        ...cliente,
+        mascotas_count: mascotas.length,
+        primera_mascota_nombre: primera?.nombre || null,
+        primera_mascota_especie: primera?.especie || null,
+        primera_mascota_raza: primera?.raza || null,
+      };
+    });
 
     return NextResponse.json({ clientes });
   } catch {
